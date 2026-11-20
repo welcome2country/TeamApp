@@ -4,33 +4,46 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Landa — UK Relocation Assistant</title>
+  <!-- Tailwind-style clean box-sizing & Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
   <style>
     :root {
-      --primary: #0f3c5c;
-      --primary-light: #1b5b8a;
-      --primary-soft: #eaf3fa;
-      --accent: #e67e22;
-      --accent-soft: #fef5ec;
-      --accent-border: #f5b041;
-      --bg-page: #f4f7fa;
-      --card-bg: #ffffff;
-      --text-main: #1f2937;
-      --text-muted: #64748b;
-      --border-color: #e2e8f0;
+      /* Ultra-Modern Dark Theme Palette */
+      --bg-page: #0b0f19;
+      --card-bg: #131b2e;
+      --card-bg-light: #1e2942;
+      --border-color: #263554;
+      --border-focus: #3b82f6;
+      
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --primary-soft: rgba(59, 130, 246, 0.15);
+      
+      --accent: #f97316;
+      --accent-soft: rgba(249, 115, 22, 0.12);
+      --accent-border: #f97316;
+      
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-highlight: #60a5fa;
       --success: #10b981;
+      
       --radius-sm: 8px;
       --radius-md: 14px;
-      --radius-lg: 20px;
-      --shadow-sm: 0 2px 6px rgba(15, 60, 92, 0.05);
-      --shadow-md: 0 10px 25px -5px rgba(15, 60, 92, 0.08), 0 8px 10px -6px rgba(15, 60, 92, 0.04);
-      --transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      --radius-lg: 24px;
+      --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     body {
@@ -40,12 +53,16 @@
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      padding: 24px 16px;
+      padding: 40px 16px;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(249, 115, 22, 0.05) 0%, transparent 50%);
+      background-attachment: fixed;
     }
 
     .app-container {
       width: 100%;
-      max-width: 520px;
+      max-width: 540px;
       background: var(--card-bg);
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-md);
@@ -57,9 +74,9 @@
 
     /* Header */
     .header {
-      background: linear-gradient(145deg, #0d324d 0%, #174d75 100%);
-      color: #ffffff;
-      padding: 32px 24px 28px;
+      background: linear-gradient(180deg, rgba(30, 41, 66, 0.6) 0%, rgba(19, 27, 46, 0) 100%);
+      border-bottom: 1px solid rgba(38, 53, 84, 0.4);
+      padding: 36px 28px 28px;
       text-align: center;
       position: relative;
     }
@@ -68,53 +85,60 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(6px);
-      padding: 6px 14px;
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      backdrop-filter: blur(8px);
+      padding: 6px 16px;
       border-radius: 999px;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 600;
       letter-spacing: 0.5px;
-      margin-bottom: 12px;
-      color: #fce7cf;
+      margin-bottom: 16px;
+      color: #93c5fd;
     }
 
     .brand-badge svg {
       width: 16px;
       height: 16px;
-      fill: currentColor;
+      fill: none;
+      stroke: currentColor;
     }
 
     .header h1 {
-      font-size: 1.85rem;
+      font-size: 2rem;
       font-weight: 700;
       letter-spacing: -0.5px;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
+      background: linear-gradient(to right, #ffffff, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .header p {
       font-size: 0.95rem;
-      color: #cbd5e1;
-      max-width: 360px;
+      color: var(--text-muted);
+      max-width: 380px;
       margin: 0 auto;
-      line-height: 1.4;
+      line-height: 1.5;
     }
 
     /* Form Container */
     .content {
-      padding: 28px 24px 32px;
+      padding: 32px 28px;
       display: flex;
       flex-direction: column;
-      gap: 22px;
+      gap: 28px;
     }
 
-    /* Question Card & Progressive Reveal */
+    /* Progressive Reveal steps */
     .step-section {
       opacity: 0;
       max-height: 0;
       overflow: hidden;
-      transform: translateY(16px);
-      transition: opacity 0.4s ease, transform 0.4s ease, max-height 0.5s ease;
+      transform: translateY(20px);
+      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                  transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                  max-height 0.6s cubic-bezier(0.16, 1, 0.3, 1);
       pointer-events: none;
     }
 
@@ -129,69 +153,71 @@
     .step-label {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 1rem;
+      gap: 12px;
+      font-size: 1.05rem;
       font-weight: 600;
-      color: var(--primary);
-      margin-bottom: 12px;
+      color: var(--text-main);
+      margin-bottom: 16px;
     }
 
     .step-number {
-      width: 26px;
-      height: 26px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       background: var(--primary-soft);
-      color: var(--primary);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       font-weight: 700;
       flex-shrink: 0;
     }
 
-    /* Globe & Origin Selection */
+    /* Interactive Globe Interface */
     .globe-card {
-      background: #f8fafc;
+      background: var(--card-bg-light);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      padding: 16px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 14px;
+      gap: 16px;
+      position: relative;
     }
 
-    .globe-illustration {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #56c2e6, #0e7490 70%, #083344 100%);
-      box-shadow: 0 10px 20px rgba(14, 116, 144, 0.25), inset -5px -5px 12px rgba(0, 0, 0, 0.35);
+    .globe-container {
+      width: 200px;
+      height: 200px;
       position: relative;
+      cursor: grab;
+      border-radius: 50%;
+      box-shadow: 0 0 40px rgba(59, 130, 246, 0.15);
+      background: radial-gradient(circle at 50% 50%, #172554 0%, #030712 100%);
+    }
+    
+    .globe-container:active {
+      cursor: grabbing;
+    }
+
+    .globe-container canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-radius: 50%;
+      width: 100%;
+      height: 100%;
+    }
+
+    .globe-hint {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
       display: flex;
       align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-
-    .globe-illustration:hover {
-      transform: scale(1.04) rotate(4deg);
-    }
-
-    .globe-orbit {
-      position: absolute;
-      width: 120%;
-      height: 120%;
-      border: 1.5px dashed rgba(255, 255, 255, 0.4);
-      border-radius: 50%;
-      animation: spin 24s linear infinite;
-    }
-
-    @keyframes spin {
-      100% { transform: rotate(360deg); }
+      gap: 6px;
     }
 
     .field-wrap {
@@ -201,44 +227,88 @@
 
     select, input[type="text"], input[type="number"] {
       width: 100%;
-      padding: 13px 14px;
+      padding: 14px 16px;
       font-size: 0.95rem;
       border: 1.5px solid var(--border-color);
       border-radius: var(--radius-sm);
-      background-color: #ffffff;
+      background-color: rgba(11, 15, 25, 0.6);
       color: var(--text-main);
       outline: none;
       transition: var(--transition);
     }
 
     select:focus, input:focus {
-      border-color: var(--primary-light);
-      box-shadow: 0 0 0 3px rgba(27, 91, 138, 0.15);
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+      background-color: rgba(11, 15, 25, 0.95);
+    }
+
+    /* Custom Autocomplete Suggestions UI */
+    .autocomplete-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .suggestions-list {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: var(--card-bg-light);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      max-height: 220px;
+      overflow-y: auto;
+      z-index: 10;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      display: none;
+    }
+
+    .suggestions-list.visible {
+      display: block;
+    }
+
+    .suggestion-item {
+      padding: 12px 16px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      transition: var(--transition);
+      border-bottom: 1px solid rgba(38, 53, 84, 0.3);
+    }
+
+    .suggestion-item:last-child {
+      border-bottom: none;
+    }
+
+    .suggestion-item:hover, .suggestion-item.highlighted {
+      background-color: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
     }
 
     /* Purpose Option Cards */
     .purpose-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 16px;
     }
 
     .purpose-card {
-      border: 2px solid var(--border-color);
+      border: 1.5px solid var(--border-color);
       border-radius: var(--radius-md);
-      padding: 16px 12px;
+      padding: 20px 16px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       cursor: pointer;
-      background: #ffffff;
+      background: var(--card-bg-light);
       transition: var(--transition);
       user-select: none;
     }
 
     .purpose-card:hover {
-      border-color: #cbd5e1;
+      border-color: rgba(59, 130, 246, 0.5);
       transform: translateY(-2px);
       box-shadow: var(--shadow-sm);
     }
@@ -246,56 +316,58 @@
     .purpose-card.selected {
       border-color: var(--accent);
       background-color: var(--accent-soft);
-      box-shadow: 0 4px 12px rgba(230, 126, 34, 0.18);
+      box-shadow: 0 4px 20px rgba(249, 115, 22, 0.15);
     }
 
     .purpose-icon {
-      width: 48px;
-      height: 48px;
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
-      background: #f1f5f9;
+      background: rgba(11, 15, 25, 0.5);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--primary);
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
       transition: var(--transition);
     }
 
     .purpose-card.selected .purpose-icon {
-      background: #ffe3ca;
+      background: rgba(249, 115, 22, 0.2);
       color: var(--accent);
+      border-color: rgba(249, 115, 22, 0.4);
     }
 
     .purpose-label {
-      font-weight: 700;
+      font-weight: 600;
       font-size: 0.95rem;
       letter-spacing: 0.3px;
     }
 
     /* Companions Section */
     .companion-creator {
-      background: #f8fafc;
+      background: var(--card-bg-light);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      padding: 16px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
     }
 
     .creator-row {
       display: grid;
-      grid-template-columns: 1.4fr 1fr auto;
-      gap: 8px;
+      grid-template-columns: 1.5fr 1fr auto;
+      gap: 10px;
       align-items: center;
     }
 
     .btn-secondary {
       background: var(--primary-soft);
-      color: var(--primary);
-      border: none;
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
       border-radius: var(--radius-sm);
-      padding: 12px 14px;
+      padding: 13px 16px;
       font-weight: 600;
       font-size: 0.9rem;
       cursor: pointer;
@@ -308,22 +380,22 @@
     }
 
     .btn-secondary:hover {
-      background: #d6e8f7;
+      background: rgba(59, 130, 246, 0.25);
     }
 
     .companion-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-top: 4px;
+      gap: 10px;
+      margin-top: 6px;
     }
 
     .companion-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 14px;
-      background: #ffffff;
+      padding: 12px 16px;
+      background: rgba(11, 15, 25, 0.4);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
       animation: fadeIn 0.3s ease;
@@ -341,26 +413,27 @@
     }
 
     .badge-role {
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       font-weight: 600;
-      color: var(--primary);
+      color: var(--text-main);
     }
 
     .badge-age {
       font-size: 0.8rem;
-      color: var(--text-muted);
-      background: #f1f5f9;
-      padding: 2px 8px;
+      color: var(--primary-hover);
+      background: var(--primary-soft);
+      padding: 3px 10px;
       border-radius: 999px;
+      border: 1px solid rgba(59, 130, 246, 0.2);
     }
 
     .btn-remove {
       background: transparent;
       border: none;
-      color: #94a3b8;
+      color: #6b7280;
       cursor: pointer;
-      padding: 4px;
-      border-radius: 4px;
+      padding: 6px;
+      border-radius: 6px;
       transition: var(--transition);
       display: flex;
       align-items: center;
@@ -369,12 +442,12 @@
 
     .btn-remove:hover {
       color: #ef4444;
-      background: #fee2e2;
+      background: rgba(239, 68, 68, 0.15);
     }
 
     /* Submit Section */
     .submit-wrap {
-      margin-top: 8px;
+      margin-top: 12px;
     }
 
     .btn-primary {
@@ -382,12 +455,12 @@
       background: var(--primary);
       color: #ffffff;
       border: none;
-      padding: 15px 20px;
+      padding: 16px 24px;
       border-radius: var(--radius-md);
       font-size: 1.05rem;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 6px 16px rgba(15, 60, 92, 0.2);
+      box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
       transition: var(--transition);
       display: flex;
       align-items: center;
@@ -396,13 +469,13 @@
     }
 
     .btn-primary:hover {
-      background: var(--primary-light);
+      background: #2563eb;
       transform: translateY(-1px);
-      box-shadow: 0 8px 20px rgba(15, 60, 92, 0.28);
+      box-shadow: 0 12px 24px rgba(59, 130, 246, 0.35);
     }
 
     .btn-primary:disabled {
-      opacity: 0.5;
+      opacity: 0.4;
       cursor: not-allowed;
       transform: none;
     }
@@ -414,8 +487,8 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(4px);
+      background: rgba(3, 7, 18, 0.8);
+      backdrop-filter: blur(8px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -428,17 +501,18 @@
     }
 
     .modal {
-      background: #ffffff;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
-      padding: 28px 24px;
+      padding: 32px 28px;
       max-width: 440px;
       width: 100%;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-      animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+      animation: modalPop 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     @keyframes modalPop {
-      0% { transform: scale(0.92); opacity: 0; }
+      0% { transform: scale(0.95); opacity: 0; }
       100% { transform: scale(1); opacity: 1; }
     }
 
@@ -447,39 +521,40 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: 8px;
-      margin-bottom: 20px;
+      gap: 12px;
+      margin-bottom: 24px;
     }
 
     .modal-icon {
-      width: 52px;
-      height: 52px;
-      background: #d1fae5;
+      width: 56px;
+      height: 56px;
+      background: rgba(16, 185, 129, 0.15);
       color: var(--success);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 4px;
+      border: 1px solid rgba(16, 185, 129, 0.3);
     }
 
     .summary-card {
-      background: #f8fafc;
+      background: var(--card-bg-light);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
-      padding: 14px;
-      margin-bottom: 20px;
+      padding: 16px;
+      margin-bottom: 24px;
       font-size: 0.9rem;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
 
     .summary-row {
       display: flex;
       justify-content: space-between;
       border-bottom: 1px dashed var(--border-color);
-      padding-bottom: 6px;
+      padding-bottom: 8px;
     }
 
     .summary-row:last-child {
@@ -501,7 +576,7 @@
 <body>
 
   <main class="app-container">
-    <!-- 1. Header / Welcome to Landa -->
+    <!-- Header / Welcome to Landa -->
     <header class="header">
       <div class="brand-badge">
         <svg viewBox="0 0 24 24">
@@ -516,7 +591,7 @@
     </header>
 
     <div class="content">
-      <!-- 2. Question: Origin Country with Globe -->
+      <!-- 1. Question: Origin Country with Interactive Globe -->
       <section class="step-section active" id="step-origin">
         <div class="step-label">
           <span class="step-number">1</span>
@@ -524,67 +599,57 @@
         </div>
 
         <div class="globe-card">
-          <div class="globe-illustration" title="Global Relocation" id="globe-visual">
-            <div class="globe-orbit"></div>
-            <!-- Globe SVG icon overlay -->
-            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.5">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M12 2a14.5 14.5 0 0 0 0 20M12 2a14.5 14.5 0 0 1 0 20M2 12h20M4 7h16M4 17h16"/>
+          <!-- Interactive HTML5 Canvas-based Globe Container -->
+          <div class="globe-container" id="globe-container">
+            <canvas id="globe-canvas"></canvas>
+          </div>
+          
+          <div class="globe-hint">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 8s linear infinite;">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
             </svg>
+            Drag to rotate globe & choose origin
           </div>
 
           <div class="field-wrap">
             <select id="select-origin">
-              <option value="" disabled selected>Select your current country...</option>
-              <option value="United States">🇺🇸 United States</option>
-              <option value="India">🇮🇳 India</option>
-              <option value="Canada">🇨🇦 Canada</option>
-              <option value="Australia">🇦🇺 Australia</option>
-              <option value="Nigeria">🇳🇬 Nigeria</option>
-              <option value="South Africa">🇿🇦 South Africa</option>
-              <option value="Germany">🇩🇪 Germany</option>
-              <option value="France">🇫🇷 France</option>
-              <option value="Singapore">🇸🇬 Singapore</option>
-              <option value="United Arab Emirates">🇦🇪 United Arab Emirates</option>
-              <option value="Other">🌍 Other Country</option>
+              <option value="" disabled selected>Select or drag globe to select...</option>
+              <option value="United States" data-lat="37.0902" data-lng="-95.7129">🇺🇸 United States</option>
+              <option value="India" data-lat="20.5937" data-lng="78.9629">🇮🇳 India</option>
+              <option value="Canada" data-lat="56.1304" data-lng="-106.3468">🇨🇦 Canada</option>
+              <option value="Australia" data-lat="-25.2744" data-lng="133.7751">🇦🇺 Australia</option>
+              <option value="Nigeria" data-lat="9.0820" data-lng="8.6753">🇳🇬 Nigeria</option>
+              <option value="South Africa" data-lat="-30.5595" data-lng="22.9375">🇿🇦 South Africa</option>
+              <option value="Germany" data-lat="51.1657" data-lng="10.4515">🇩🇪 Germany</option>
+              <option value="France" data-lat="46.2276" data-lng="2.2137">🇫🇷 France</option>
+              <option value="Singapore" data-lat="1.3521" data-lng="103.8198">🇸🇬 Singapore</option>
+              <option value="United Arab Emirates" data-lat="23.4241" data-lng="53.8478">🇦🇪 United Arab Emirates</option>
+              <option value="Other" data-lat="0" data-lng="0">🌍 Other Country</option>
             </select>
           </div>
         </div>
       </section>
 
-      <!-- 3. Question: Destination UK City -->
+      <!-- 2. Question: Destination UK City with Autocomplete -->
       <section class="step-section" id="step-destination">
         <div class="step-label">
           <span class="step-number">2</span>
           <span>Which city in the UK are you moving to?</span>
         </div>
         <div class="field-wrap">
-          <input 
-            type="text" 
-            id="input-destination" 
-            list="uk-cities" 
-            placeholder="Search or enter UK city (e.g., London, Manchester)" 
-            autocomplete="off"
-          />
-          <datalist id="uk-cities">
-            <option value="London"></option>
-            <option value="Manchester"></option>
-            <option value="Birmingham"></option>
-            <option value="Edinburgh"></option>
-            <option value="Glasgow"></option>
-            <option value="Bristol"></option>
-            <option value="Leeds"></option>
-            <option value="Cambridge"></option>
-            <option value="Oxford"></option>
-            <option value="Sheffield"></option>
-            <option value="Newcastle"></option>
-            <option value="Belfast"></option>
-            <option value="Cardiff"></option>
-          </datalist>
+          <div class="autocomplete-wrapper">
+            <input 
+              type="text" 
+              id="input-destination" 
+              placeholder="Type to search (e.g., 'lon' for London)" 
+              autocomplete="off"
+            />
+            <div class="suggestions-list" id="suggestions-list"></div>
+          </div>
         </div>
       </section>
 
-      <!-- 4. Question: Purpose (Work or Education) -->
+      <!-- 3. Question: Purpose (Work or Education) -->
       <section class="step-section" id="step-purpose">
         <div class="step-label">
           <span class="step-number">3</span>
@@ -617,7 +682,7 @@
         </div>
       </section>
 
-      <!-- 5. Question: Companions -->
+      <!-- 4. Question: Companions -->
       <section class="step-section" id="step-companions">
         <div class="step-label">
           <span class="step-number">4</span>
@@ -701,6 +766,13 @@
       companions: []
     };
 
+    // Pre-filled lists
+    const ukCities = [
+      "London", "Manchester", "Birmingham", "Edinburgh", "Glasgow", 
+      "Bristol", "Leeds", "Cambridge", "Oxford", "Sheffield", 
+      "Newcastle", "Belfast", "Cardiff"
+    ];
+
     // DOM Elements
     const stepOrigin = document.getElementById("step-origin");
     const stepDestination = document.getElementById("step-destination");
@@ -710,6 +782,7 @@
 
     const selectOrigin = document.getElementById("select-origin");
     const inputDestination = document.getElementById("input-destination");
+    const suggestionsList = document.getElementById("suggestions-list");
     const cardWork = document.getElementById("card-work");
     const cardEducation = document.getElementById("card-education");
 
@@ -728,131 +801,4 @@
       if (!element.classList.contains("active")) {
         element.classList.add("active");
         setTimeout(() => {
-          element.scrollIntoView({ behavior: "smooth", block: "nearest" });
-        }, 150);
-      }
-    }
-
-    // 1 -> 2: Country Selection
-    selectOrigin.addEventListener("change", (e) => {
-      relocationData.fromCountry = e.target.value;
-      if (relocationData.fromCountry) {
-        revealSection(stepDestination);
-      }
-    });
-
-    // 2 -> 3: UK Destination City
-    let cityTimeout = null;
-    inputDestination.addEventListener("input", (e) => {
-      clearTimeout(cityTimeout);
-      const val = e.target.value.trim();
-      relocationData.toCity = val;
-
-      if (val.length >= 2) {
-        cityTimeout = setTimeout(() => {
-          revealSection(stepPurpose);
-        }, 350);
-      }
-    });
-
-    // 3 -> 4: Move Purpose (Work / Education)
-    [cardWork, cardEducation].forEach((card) => {
-      card.addEventListener("click", () => {
-        cardWork.classList.remove("selected");
-        cardEducation.classList.remove("selected");
-
-        card.classList.add("selected");
-        relocationData.purpose = card.getAttribute("data-purpose");
-
-        // Reveal companions & submit
-        revealSection(stepCompanions);
-        revealSection(stepSubmit);
-      });
-    });
-
-    // 4: Companion Management
-    btnAddCompanion.addEventListener("click", () => {
-      const role = companionRole.value;
-      const age = companionAge.value.trim();
-
-      if (!age || isNaN(age) || age < 0 || age > 120) {
-        companionAge.focus();
-        companionAge.style.borderColor = "#ef4444";
-        setTimeout(() => (companionAge.style.borderColor = "var(--border-color)"), 1500);
-        return;
-      }
-
-      const companion = { id: Date.now(), role, age };
-      relocationData.companions.push(companion);
-
-      renderCompanion(companion);
-
-      // Reset age input
-      companionAge.value = "";
-    });
-
-    function renderCompanion(person) {
-      const div = document.createElement("div");
-      div.className = "companion-item";
-      div.id = `companion-${person.id}`;
-      div.innerHTML = `
-        <div class="companion-meta">
-          <span class="badge-role">${escapeHtml(person.role)}</span>
-          <span class="badge-age">${escapeHtml(person.age)} yrs</span>
-        </div>
-        <button type="button" class="btn-remove" title="Remove" onclick="removeCompanion(${person.id})">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-      `;
-      companionList.appendChild(div);
-    }
-
-    window.removeCompanion = function(id) {
-      relocationData.companions = relocationData.companions.filter(c => c.id !== id);
-      const elem = document.getElementById(`companion-${id}`);
-      if (elem) elem.remove();
-    };
-
-    function escapeHtml(str) {
-      return String(str).replace(/[&<>"']/g, function(m) {
-        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
-      });
-    }
-
-    // Submit handler
-    btnSubmit.addEventListener("click", () => {
-      const companionSummary = relocationData.companions.length > 0
-        ? relocationData.companions.map(c => `${c.role} (${c.age} yrs)`).join(", ")
-        : "Moving Solo";
-
-      summaryContent.innerHTML = `
-        <div class="summary-row">
-          <span class="summary-title">Departing From</span>
-          <span class="summary-value">${escapeHtml(relocationData.fromCountry || "Not specified")}</span>
-        </div>
-        <div class="summary-row">
-          <span class="summary-title">UK Destination</span>
-          <span class="summary-value">${escapeHtml(relocationData.toCity || "Not specified")}</span>
-        </div>
-        <div class="summary-row">
-          <span class="summary-title">Purpose</span>
-          <span class="summary-value">${escapeHtml(relocationData.purpose || "Not selected")}</span>
-        </div>
-        <div class="summary-row">
-          <span class="summary-title">Accompanying</span>
-          <span class="summary-value">${companionSummary}</span>
-        </div>
-      `;
-
-      summaryModal.classList.add("open");
-    });
-
-    btnModalClose.addEventListener("click", () => {
-      summaryModal.classList.remove("open");
-    });
-  </script>
-</body>
-</html>
+          element.scro
