@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Relocate Setup — Landa UK Relocation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "inverse-surface": "#202d5d",
+            "on-primary-container": "#ede0ff",
+            "tertiary-container": "#00708a",
+            "secondary-fixed-dim": "#ffb1c7",
+            "tertiary-fixed": "#b7eaff",
+            "on-surface": "#071747",
+            "surface-bright": "#faf8ff",
+            "surface-container-low": "#f3f2ff",
+            "on-tertiary-fixed-variant": "#004e61",
+            "surface-variant": "#dce1ff",
+            "outline": "#7b7487",
+            "error-container": "#ffdad6",
+            "surface-dim": "#d1d8ff",
+            "secondary-fixed": "#ffd9e2",
+            "on-secondary": "#ffffff",
+            "tertiary-fixed-dim": "#6cd3f7",
+            "background": "#faf8ff",
+            "error": "#ba1a1a",
+            "on-tertiary-container": "#c0edff",
+            "secondary": "#b5005d",
+            "on-tertiary": "#ffffff",
+            "surface-container-highest": "#dce1ff",
+            "surface-container": "#ebedff",
+            "on-primary-fixed-variant": "#5a00c6",
+            "on-primary": "#ffffff",
+            "inverse-on-surface": "#eff0ff",
+            "primary": "#630ed4",
+            "surface": "#faf8ff",
+            "surface-container-high": "#e4e7ff",
+            "on-secondary-fixed-variant": "#8e0048",
+            "primary-fixed": "#eaddff",
+            "surface-container-lowest": "#ffffff",
+            "on-error-container": "#93000a",
+            "primary-container": "#7c3aed",
+            "outline-variant": "#ccc3d8",
+            "on-secondary-fixed": "#3f001c",
+            "inverse-primary": "#d2bbff",
+            "on-secondary-container": "#fffbff",
+            "on-surface-variant": "#4a4455",
+            "primary-fixed-dim": "#d2bbff",
+            "on-tertiary-fixed": "#001f28",
+            "on-primary-fixed": "#25005a",
+            "on-error": "#ffffff",
+            "tertiary": "#00566b",
+            "surface-tint": "#732ee4",
+            "secondary-container": "#da2676",
+            "on-background": "#071747"
+          },
+          borderRadius: {
+            DEFAULT: "1rem",
+            lg: "2rem",
+            xl: "3rem",
+            full: "9999px"
+          },
+          spacing: {
+            "space-xs": "0.375rem",
+            "space-sm": "0.75rem",
+            "space-md": "1.25rem",
+            "space-lg": "2rem",
+            "space-xl": "3rem",
+            "margin": "1.5rem",
+            "gutter": "1.5rem"
+          },
+          fontFamily: {
+            sans: ["Plus Jakarta Sans", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @layer base {
+      html, body {
+        font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+        background-color: #faf8ff;
+        color: #071747;
+        margin: 0;
+        padding: 0;
+        overscroll-behavior: none;
+      }
+      .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+      .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+    }
+    ::-webkit-scrollbar { display: none; }
+    .tabular-nums { font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body class="bg-surface text-on-surface flex flex-col min-h-screen">
+<header class="fixed top-0 inset-x-0 z-40 bg-surface/85 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+  <div class="max-w-4xl mx-auto h-16 px-6 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 shrink-0" aria-label="Landa logo"><rect width="40" height="40" rx="11" fill="#18203E"/><defs><linearGradient id="landaLogoG" x1="8" y1="8" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#9D6BFF"/><stop offset="55%" stop-color="#7C3AED"/><stop offset="100%" stop-color="#DA2676"/></linearGradient></defs><path d="M12 10C12 19.5 16.5 26 28 28.5C21.5 29.5 15.5 27.5 12 22.5V29.5H10V10H12Z" fill="url(#landaLogoG)"/><path d="M15.5 13.5C18.5 19 23 22.5 30 23.5C25.5 26 19.5 24.5 15.5 19.5V13.5Z" fill="#FFB1C7" fill-opacity="0.9"/><circle cx="28.5" cy="12.5" r="2.5" fill="#B7EAFF"/></svg>
+      <span class="text-[18px] font-semibold text-on-surface">Relocate</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="hidden sm:flex flex-col items-end">
+        <span class="text-[12px] font-medium text-on-surface-variant">Relocation Progress</span>
+        <span class="text-[12px] font-semibold text-primary tabular-nums" id="header-progress">0%</span>
+      </div>
+      <a href="profile.html" aria-label="Open Profile" class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center hover:opacity-90 transition-opacity">
+        <span class="material-symbols-outlined text-[20px]">person</span>
+      </a>
+    </div>
+  </div>
+</header>
+<main class="flex-grow w-full max-w-3xl mx-auto px-6 pt-24 pb-28">
+  <div class="flex flex-col items-center text-center mb-8">
+    <div class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-surface-container-high text-primary mb-3 shadow-sm">
+      <span class="material-symbols-outlined text-[18px]">favorite</span>
+      <span class="text-[12px] font-semibold">Your effortless move starts here</span>
+    </div>
+    <h1 class="text-[28px] leading-[36px] font-semibold text-on-surface mb-2">Let's craft your UK adventure</h1>
+    <p class="text-[14px] text-on-surface-variant max-w-md">Tell us about your upcoming relocation so we can personalize every step of your journey.</p>
+  </div>
+
+  <form id="relocate-form" class="flex flex-col gap-7" onsubmit="handleBuildJourney(event)">
+    <div class="bg-surface-container-lowest p-6 rounded-[24px] shadow-[0_8px_30px_rgba(99,14,212,0.06)] flex flex-col gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed">
+          <span class="material-symbols-outlined">flight_takeoff</span>
+        </div>
+        <div>
+          <span class="text-[12px] text-on-surface-variant block">Route</span>
+          <span class="text-[18px] font-semibold text-on-surface">Where are you moving?</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label for="origin-select" class="text-[12px] font-medium text-on-surface-variant">Moving from</label>
+          <div class="relative flex items-center bg-surface-container-low rounded-2xl px-4 py-3 focus-within:ring-2 focus-within:ring-primary">
+            <span class="material-symbols-outlined text-primary mr-2">public</span>
+            <select id="origin-select" class="w-full bg-transparent outline-none text-[14px] font-medium cursor-pointer appearance-none">
+              <option value="" disabled selected>Select origin country...</option>
+              <option value="United States">United States</option>
+              <option value="Canada">Canada</option>
+              <option value="Australia">Australia</option>
+              <option value="Germany">Germany</option>
+              <option value="France">France</option>
+              <option value="Singapore">Singapore</option>
+              <option value="India">India</option>
+              <option value="Brazil">Brazil</option>
+              <option value="Ireland">Ireland</option>
+              <option value="Japan">Japan</option>
+            </select>
+            <span class="material-symbols-outlined text-on-surface-variant pointer-events-none">expand_more</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label for="city-select" class="text-[12px] font-medium text-on-surface-variant">Destination UK City</label>
+          <div class="relative flex items-center bg-surface-container-low rounded-2xl px-4 py-3 focus-within:ring-2 focus-within:ring-primary">
+            <span class="material-symbols-outlined text-secondary mr-2" style="font-variation-settings:'FILL' 1;">location_on</span>
+            <select id="city-select" class="w-full bg-transparent outline-none text-[14px] font-medium cursor-pointer appearance-none">
+              <option value="" disabled selected>Select destination UK city...</option>
+              <option value="London">London (The Big Smoke)</option>
+              <option value="Edinburgh">Edinburgh (Historic Charm)</option>
+              <option value="Manchester">Manchester (Vibrant &amp; Cultural)</option>
+              <option value="Bristol">Bristol (Creative &amp; Coastal)</option>
+              <option value="Birmingham">Birmingham (Heart of England)</option>
+              <option value="Leeds">Leeds (Northern Hub)</option>
+              <option value="Glasgow">Glasgow (Design &amp; Culture)</option>
+            </select>
+            <span class="material-symbols-outlined text-on-surface-variant pointer-events-none">expand_more</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label for="first-name" class="text-[12px] font-medium text-on-surface-variant">First name (optional)</label>
+        <div class="flex items-center bg-surface-container-low rounded-2xl px-4 py-3 focus-within:ring-2 focus-within:ring-primary">
+          <span class="material-symbols-outlined text-outline mr-2">badge</span>
+          <input id="first-name" type="text" placeholder="Enter your first name (optional)" value="" class="w-full bg-transparent outline-none text-[14px] font-medium placeholder:text-outline" />
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <div class="flex items-center justify-between px-1">
+        <span class="text-[18px] font-semibold text-on-surface">Primary Purpose</span>
+        <span class="text-[12px] text-primary font-medium">Select one</span>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <button type="button" id="card-work" onclick="selectPurpose('work')" class="text-left cursor-pointer bg-surface-container-lowest p-5 rounded-[24px] shadow-[0_4px_20px_rgba(99,14,212,0.04)] transition-all relative overflow-hidden flex flex-col justify-between border-2 border-transparent hover:border-primary/30">
+          <div class="w-12 h-12 rounded-2xl bg-primary-container text-on-primary-container flex items-center justify-center mb-4 shadow-md shadow-primary/20">
+            <span class="material-symbols-outlined text-[24px]">work</span>
+          </div>
+          <div>
+            <h3 class="text-[17px] font-semibold text-on-surface mb-1">Career &amp; Work</h3>
+            <p class="text-[12px] text-on-surface-variant">Skilled worker visa, office relocation, networking</p>
+          </div>
+          <div class="absolute top-4 right-4 w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center check-indicator">
+            <div class="w-2.5 h-2.5 rounded-full bg-transparent"></div>
+          </div>
+        </button>
+
+        <button type="button" id="card-education" onclick="selectPurpose('education')" class="text-left cursor-pointer bg-surface-container-lowest p-5 rounded-[24px] shadow-[0_4px_20px_rgba(99,14,212,0.04)] transition-all relative overflow-hidden flex flex-col justify-between border-2 border-transparent hover:border-primary/30">
+          <div class="w-12 h-12 rounded-2xl bg-secondary-container text-on-secondary-container flex items-center justify-center mb-4 shadow-md shadow-secondary/20">
+            <span class="material-symbols-outlined text-[24px]">school</span>
+          </div>
+          <div>
+            <h3 class="text-[17px] font-semibold text-on-surface mb-1">Study &amp; Uni</h3>
+            <p class="text-[12px] text-on-surface-variant">Student visa, campus housing, student banking</p>
+          </div>
+          <div class="absolute top-4 right-4 w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center check-indicator">
+            <div class="w-2.5 h-2.5 rounded-full bg-transparent"></div>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <span class="text-[18px] font-semibold text-on-surface px-1">Who is moving?</span>
+      <div class="grid grid-cols-3 gap-3">
+        <button type="button" id="hh-solo" onclick="selectHousehold('solo')" class="flex flex-col items-center justify-center p-4 rounded-[20px] bg-surface-container-lowest text-on-surface transition-all shadow-sm hover:bg-surface-container-high border-2 border-transparent min-h-[84px]">
+          <span class="material-symbols-outlined text-[28px] mb-1.5 text-primary">person</span>
+          <span class="text-[14px] font-medium">Solo</span>
+        </button>
+        <button type="button" id="hh-couple" onclick="selectHousehold('couple')" class="flex flex-col items-center justify-center p-4 rounded-[20px] bg-surface-container-lowest text-on-surface transition-all shadow-sm hover:bg-surface-container-high border-2 border-transparent min-h-[84px]">
+          <span class="material-symbols-outlined text-[28px] mb-1.5 text-primary">diversity_3</span>
+          <span class="text-[14px] font-medium">Couple</span>
+        </button>
+        <button type="button" id="hh-family" onclick="selectHousehold('family')" class="flex flex-col items-center justify-center p-4 rounded-[20px] bg-surface-container-lowest text-on-surface transition-all shadow-sm hover:bg-surface-container-high border-2 border-transparent min-h-[84px]">
+          <span class="material-symbols-outlined text-[28px] mb-1.5 text-primary">family_restroom</span>
+          <span class="text-[14px] font-medium">Family</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="relative w-full h-40 rounded-[24px] overflow-hidden shadow-lg flex items-end p-5 group">
+      <svg viewBox="0 0 640 240" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" aria-hidden="true"><defs><linearGradient id="skyT" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#432874"/><stop offset="48%" stop-color="#8E2B7A"/><stop offset="100%" stop-color="#E69A73"/></linearGradient><radialGradient id="sunG" cx="72%" cy="48%" r="42%"><stop offset="0%" stop-color="#FFE1A8" stop-opacity="0.85"/><stop offset="50%" stop-color="#F59E9E" stop-opacity="0.35"/><stop offset="100%" stop-color="#432874" stop-opacity="0"/></radialGradient><linearGradient id="rivG" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#261B47"/><stop offset="65%" stop-color="#5D3776"/><stop offset="100%" stop-color="#A65E7E"/></linearGradient></defs><rect width="640" height="240" fill="url(#skyT)"/><rect width="640" height="240" fill="url(#sunG)"/><g fill="#20193D" fill-opacity="0.85"><rect x="28" y="135" width="38" height="65" rx="2"/><rect x="74" y="118" width="44" height="82" rx="2"/><rect x="130" y="142" width="32" height="58" rx="2"/><circle cx="195" cy="142" r="34" fill="none" stroke="#20193D" stroke-width="4"/><circle cx="195" cy="142" r="24" fill="none" stroke="#20193D" stroke-width="1.5" stroke-dasharray="4 4"/><line x1="195" y1="142" x2="178" y2="195" stroke="#20193D" stroke-width="3"/><line x1="195" y1="142" x2="212" y2="195" stroke="#20193D" stroke-width="3"/><rect x="245" y="124" width="46" height="76" rx="2"/><rect x="300" y="102" width="38" height="98" rx="2"/><rect x="352" y="132" width="42" height="68" rx="2"/><polygon points="445,28 474,200 416,200" fill="#1C1536"/><polygon points="445,28 462,200 445,200" fill="#352663" fill-opacity="0.5"/><path d="M510 198 C504 140 508 104 524 96 C540 104 544 140 538 198 Z"/><rect x="556" y="118" width="40" height="82" rx="3"/><rect x="602" y="140" width="38" height="60" rx="2"/></g><rect x="0" y="192" width="640" height="48" fill="url(#rivG)"/><g fill="#FFD5AE" fill-opacity="0.28"><rect x="408" y="202" width="74" height="3" rx="1.5"/><rect x="424" y="211" width="46" height="2.5" rx="1.25"/><rect x="180" y="206" width="52" height="2" rx="1"/><rect x="515" y="216" width="44" height="2" rx="1"/></g></svg>
+      <div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/85 via-inverse-surface/25 to-transparent"></div>
+      <div class="relative z-10 flex items-center justify-between w-full">
+        <div class="flex flex-col">
+          <span class="text-[12px] text-tertiary-fixed font-semibold uppercase tracking-wider">Landa Journey Builder</span>
+          <span class="text-[18px] font-semibold text-inverse-on-surface">Custom checklist ready in 1 tap</span>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+          <span class="material-symbols-outlined">auto_awesome</span>
+        </div>
+      </div>
+    </div>
+
+    <p id="relocate-error" class="hidden text-[13px] font-medium text-error bg-error-container px-4 py-3 rounded-2xl"></p>
+
+    <button type="submit" class="w-full h-14 rounded-full bg-gradient-to-r from-primary-container via-primary to-secondary-container text-on-primary font-semibold text-[16px] flex items-center justify-center gap-2 shadow-[0_10px_30px_rgba(124,58,237,0.35)] hover:opacity-95 active:scale-[0.98] transition-all">
+      <span>Build my journey</span>
+      <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+    </button>
+  </form>
+</main>
+<nav class="fixed bottom-0 inset-x-0 z-40 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-1px_8px_rgba(0,0,0,0.04)]">
+  <div class="max-w-lg mx-auto flex justify-around items-center h-20 px-3">
+    <a href="journey.html"  class="flex flex-col items-center justify-center gap-1 w-16 h-14 transition-all rounded-full text-on-surface-variant hover:text-on-surface">
+      <span class="material-symbols-outlined text-[22px]">explore</span>
+      <span class="text-[11px] leading-none">Journey</span>
+    </a>
+    <a href="relocate.html" aria-current="page" class="flex flex-col items-center justify-center gap-1 w-16 h-14 transition-all rounded-full bg-primary-container text-on-primary-container font-semibold shadow-sm">
+      <span class="material-symbols-outlined text-[22px]">flight_takeoff</span>
+      <span class="text-[11px] leading-none">Relocate</span>
+    </a>
+    <a href="guides.html"  class="flex flex-col items-center justify-center gap-1 w-16 h-14 transition-all rounded-full text-on-surface-variant hover:text-on-surface">
+      <span class="material-symbols-outlined text-[22px]">menu_book</span>
+      <span class="text-[11px] leading-none">Guides</span>
+    </a>
+    <a href="profile.html"  class="flex flex-col items-center justify-center gap-1 w-16 h-14 transition-all rounded-full text-on-surface-variant hover:text-on-surface">
+      <span class="material-symbols-outlined text-[22px]">person</span>
+      <span class="text-[11px] leading-none">Profile</span>
+    </a>
+  </div>
+</nav>
+<script>
+
+  const LANDA_STORAGE_KEY = 'landa_uk_relocation_v1';
+  const EMPTY_STATE = {
+    firstName: '',
+    originCountry: '',
+    destinationCity: '',
+    purpose: null,
+    household: null,
+    onboardingCompleted: false,
+    arrivalAirport: '',
+    arrivalDate: '',
+    heavyLuggage: false,
+    travelingWithPets: false,
+    petPassportReady: false,
+    selectedTransportId: null,
+    transportConfirmedAt: null,
+    completedTasks: {},
+    completedPriorityItems: {}
+  };
+
+  function getLandaState() {
+    try {
+      const raw = localStorage.getItem(LANDA_STORAGE_KEY);
+      if (!raw) return structuredClone(EMPTY_STATE);
+      return { ...structuredClone(EMPTY_STATE), ...JSON.parse(raw) };
+    } catch {
+      return structuredClone(EMPTY_STATE);
+    }
+  }
+
+  function saveLandaState(next) {
+    localStorage.setItem(LANDA_STORAGE_KEY, JSON.stringify(next));
+  }
+
+  function resetLandaState() {
+    localStorage.removeItem(LANDA_STORAGE_KEY);
+  }
+
+  const ALL_TASK_IDS = [
+    'c1-flight','c1-luggage','c1-touchdown',
+    'c2-right-to-rent','c2-neighborhood','c2-deposit',
+    'c3-sim','c3-bank','c3-council',
+    'c4-nhs','c4-ni','c4-transit',
+    'c5-community','c5-explore'
+  ];
+
+  function getProgressPercent(state) {
+    const total = ALL_TASK_IDS.length + 1;
+    let done = state.onboardingCompleted ? 1 : 0;
+    ALL_TASK_IDS.forEach(id => { if (state.completedTasks && state.completedTasks[id]) done++; });
+    return Math.round((done / total) * 100);
+  }
+
+  function getDaysUntil(dateStr) {
+    if (!dateStr) return null;
+    const t = new Date(dateStr + 'T00:00:00');
+    if (isNaN(t.getTime())) return null;
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return Math.ceil((t.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  }
+
+  let state = getLandaState();
+  let currentPurpose = state.purpose || null;
+  let currentHousehold = state.household || null;
+
+  document.getElementById('header-progress').textContent = getProgressPercent(state) + '%';
+  if (state.originCountry) document.getElementById('origin-select').value = state.originCountry;
+  if (state.destinationCity) document.getElementById('city-select').value = state.destinationCity;
+  if (state.firstName) document.getElementById('first-name').value = state.firstName;
+
+  function renderPurpose() {
+    ['work', 'education'].forEach(p => {
+      const card = document.getElementById('card-' + p);
+      const ind = card.querySelector('.check-indicator');
+      const dot = ind.querySelector('div');
+      if (currentPurpose === p) {
+        card.className = "text-left cursor-pointer bg-primary-fixed/35 p-5 rounded-[24px] shadow-[0_8px_25px_rgba(99,14,212,0.14)] transition-all relative overflow-hidden flex flex-col justify-between border-2 border-primary";
+        ind.className = "absolute top-4 right-4 w-6 h-6 rounded-full bg-primary flex items-center justify-center check-indicator";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-on-primary";
+      } else {
+        card.className = "text-left cursor-pointer bg-surface-container-lowest p-5 rounded-[24px] shadow-[0_4px_20px_rgba(99,14,212,0.04)] transition-all relative overflow-hidden flex flex-col justify-between border-2 border-transparent hover:border-primary/30";
+        ind.className = "absolute top-4 right-4 w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center check-indicator";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-transparent";
+      }
+    });
+  }
+
+  function renderHousehold() {
+    ['solo', 'couple', 'family'].forEach(t => {
+      const btn = document.getElementById('hh-' + t);
+      if (currentHousehold === t) {
+        btn.className = "flex flex-col items-center justify-center p-4 rounded-[20px] bg-primary-fixed text-on-primary-fixed transition-all shadow-md border-2 border-primary min-h-[84px]";
+      } else {
+        btn.className = "flex flex-col items-center justify-center p-4 rounded-[20px] bg-surface-container-lowest text-on-surface transition-all shadow-sm hover:bg-surface-container-high border-2 border-transparent min-h-[84px]";
+      }
+    });
+  }
+
+  function selectPurpose(purpose) {
+    currentPurpose = purpose;
+    renderPurpose();
+  }
+
+  function selectHousehold(type) {
+    currentHousehold = type;
+    renderHousehold();
+  }
+
+  renderPurpose();
+  renderHousehold();
+
+  function handleBuildJourney(e) {
+    e.preventDefault();
+    const origin = document.getElementById('origin-select').value;
+    const city = document.getElementById('city-select').value;
+    const firstName = document.getElementById('first-name').value.trim();
+    const errEl = document.getElementById('relocate-error');
+
+    const missing = [];
+    if (!origin) missing.push('origin country');
+    if (!city) missing.push('destination UK city');
+    if (!currentPurpose) missing.push('primary purpose');
+    if (!currentHousehold) missing.push('who is moving');
+
+    if (missing.length > 0) {
+      errEl.textContent = 'Please select your ' + missing.join(', ') + ' before building your journey.';
+      errEl.classList.remove('hidden');
+      return;
+    }
+
+    errEl.classList.add('hidden');
+    state = {
+      ...state,
+      firstName,
+      originCountry: origin,
+      destinationCity: city,
+      purpose: currentPurpose,
+      household: currentHousehold,
+      onboardingCompleted: true
+    };
+    saveLandaState(state);
+    window.location.href = 'journey.html';
+  }
+</script>
+</body>
+</html>

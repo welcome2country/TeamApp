@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Touch-Down Mode — Landa UK Relocation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "inverse-surface": "#202d5d",
+            "on-primary-container": "#ede0ff",
+            "tertiary-container": "#00708a",
+            "secondary-fixed-dim": "#ffb1c7",
+            "tertiary-fixed": "#b7eaff",
+            "on-surface": "#071747",
+            "surface-bright": "#faf8ff",
+            "surface-container-low": "#f3f2ff",
+            "on-tertiary-fixed-variant": "#004e61",
+            "surface-variant": "#dce1ff",
+            "outline": "#7b7487",
+            "error-container": "#ffdad6",
+            "surface-dim": "#d1d8ff",
+            "secondary-fixed": "#ffd9e2",
+            "on-secondary": "#ffffff",
+            "tertiary-fixed-dim": "#6cd3f7",
+            "background": "#faf8ff",
+            "error": "#ba1a1a",
+            "on-tertiary-container": "#c0edff",
+            "secondary": "#b5005d",
+            "on-tertiary": "#ffffff",
+            "surface-container-highest": "#dce1ff",
+            "surface-container": "#ebedff",
+            "on-primary-fixed-variant": "#5a00c6",
+            "on-primary": "#ffffff",
+            "inverse-on-surface": "#eff0ff",
+            "primary": "#630ed4",
+            "surface": "#faf8ff",
+            "surface-container-high": "#e4e7ff",
+            "on-secondary-fixed-variant": "#8e0048",
+            "primary-fixed": "#eaddff",
+            "surface-container-lowest": "#ffffff",
+            "on-error-container": "#93000a",
+            "primary-container": "#7c3aed",
+            "outline-variant": "#ccc3d8",
+            "on-secondary-fixed": "#3f001c",
+            "inverse-primary": "#d2bbff",
+            "on-secondary-container": "#fffbff",
+            "on-surface-variant": "#4a4455",
+            "primary-fixed-dim": "#d2bbff",
+            "on-tertiary-fixed": "#001f28",
+            "on-primary-fixed": "#25005a",
+            "on-error": "#ffffff",
+            "tertiary": "#00566b",
+            "surface-tint": "#732ee4",
+            "secondary-container": "#da2676",
+            "on-background": "#071747"
+          },
+          borderRadius: {
+            DEFAULT: "1rem",
+            lg: "2rem",
+            xl: "3rem",
+            full: "9999px"
+          },
+          spacing: {
+            "space-xs": "0.375rem",
+            "space-sm": "0.75rem",
+            "space-md": "1.25rem",
+            "space-lg": "2rem",
+            "space-xl": "3rem",
+            "margin": "1.5rem",
+            "gutter": "1.5rem"
+          },
+          fontFamily: {
+            sans: ["Plus Jakarta Sans", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @layer base {
+      html, body {
+        font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+        background-color: #faf8ff;
+        color: #071747;
+        margin: 0;
+        padding: 0;
+        overscroll-behavior: none;
+      }
+      .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+      .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+    }
+    ::-webkit-scrollbar { display: none; }
+    .tabular-nums { font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body class="bg-surface text-on-surface flex flex-col min-h-screen">
+<header class="fixed top-0 inset-x-0 z-40 bg-surface/85 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+  <div class="max-w-4xl mx-auto h-16 px-6 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 shrink-0" aria-label="Landa logo"><rect width="40" height="40" rx="11" fill="#18203E"/><defs><linearGradient id="landaLogoG" x1="8" y1="8" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#9D6BFF"/><stop offset="55%" stop-color="#7C3AED"/><stop offset="100%" stop-color="#DA2676"/></linearGradient></defs><path d="M12 10C12 19.5 16.5 26 28 28.5C21.5 29.5 15.5 27.5 12 22.5V29.5H10V10H12Z" fill="url(#landaLogoG)"/><path d="M15.5 13.5C18.5 19 23 22.5 30 23.5C25.5 26 19.5 24.5 15.5 19.5V13.5Z" fill="#FFB1C7" fill-opacity="0.9"/><circle cx="28.5" cy="12.5" r="2.5" fill="#B7EAFF"/></svg>
+      <span class="text-[18px] font-semibold text-on-surface">Touch-Down Mode</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="hidden sm:flex flex-col items-end">
+        <span class="text-[12px] font-medium text-on-surface-variant">Relocation Progress</span>
+        <span class="text-[12px] font-semibold text-primary tabular-nums" id="header-progress">0%</span>
+      </div>
+      <a href="profile.html" aria-label="Open Profile" class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center hover:opacity-90 transition-opacity">
+        <span class="material-symbols-outlined text-[20px]">person</span>
+      </a>
+    </div>
+  </div>
+</header>
+<main class="flex-grow w-full max-w-3xl mx-auto px-6 pt-24 pb-28 flex flex-col gap-6">
+  <div class="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-primary-container via-primary to-secondary p-7 text-on-primary shadow-xl">
+    <div class="relative z-10 flex flex-col gap-2.5">
+      <div class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full w-fit text-[12px] font-medium">
+        <span class="material-symbols-outlined text-[16px]">flight_land</span>
+        <span>Touch-Down Mode Active</span>
+      </div>
+      <h1 id="welcome-heading" class="text-[28px] leading-[36px] font-semibold text-white">Welcome home!</h1>
+      <p id="welcome-subtitle" class="text-[14px] text-on-primary-container">Take a breath. Tap any arrival card below to mark your first 24-hour essentials complete.</p>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-between px-1">
+    <h2 class="text-[18px] font-semibold text-on-surface">Today's Priority Pass</h2>
+    <span id="priority-counter" class="text-[12px] text-primary font-semibold tabular-nums">0/4 Complete</span>
+  </div>
+
+  <div id="priority-list" class="flex flex-col gap-4"></div>
+
+  <div class="bg-surface-container-low rounded-[20px] p-5 flex items-center gap-4">
+    <div class="w-10 h-10 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center shrink-0">
+      <span class="material-symbols-outlined text-[20px]">eco</span>
+    </div>
+    <p class="text-[13px] text-on-surface-variant">Take it one step at a time. Your arrival checklist stays saved locally across every screen.</p>
+  </div>
+</main>
+<nav class="fixed bottom-0 inset-x-0 z-40 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-1px_8px_rgba(0,0,0,0.04)]">
+  <div class="max-w-lg mx-auto flex justify-around items-center h-20 px-3">
+    <a href="journey.html" aria-current="page" class="flex flex-col items-center justify-center gap-1 w-16 h-14 transition-all rounded-full bg-primary-container text-on-primary-container font-semibold shadow-sm">
+      <span class="material-symbols-outlined text-[22px]">explore</span>
+      <span class="text-[11px] leading-none">Journey</span>
+    </a>
+    <a href="relocate.html"  class="flex flex-col items-center justify-center gap-1 w-16 h-14 transition-all rounded-full text-on-surface-variant hover:text-on-surface">
+      <span class="material-symbols-outlined text-[22px]">flight_takeoff</span>
+      <span class="text-[11px] leading-none">Relocate</span>
+    </a>
+    <a href="guides.html"  class="flex flex-col items-center justify-center gap-1 w-16 h-14 transition-all rounded-full text-on-surface-variant hover:text-on-surface">
+      <span class="material-symbols-outlined text-[22px]">menu_book</span>
+      <span class="text-[11px] leading-none">Guides</span>
+    </a>
+    <a href="profile.html"  class="flex flex-col items-center justify-center gap-1 w-16 h-14 transition-all rounded-full text-on-surface-variant hover:text-on-surface">
+      <span class="material-symbols-outlined text-[22px]">person</span>
+      <span class="text-[11px] leading-none">Profile</span>
+    </a>
+  </div>
+</nav>
+<script>
+
+  const LANDA_STORAGE_KEY = 'landa_uk_relocation_v1';
+  const EMPTY_STATE = {
+    firstName: '',
+    originCountry: '',
+    destinationCity: '',
+    purpose: null,
+    household: null,
+    onboardingCompleted: false,
+    arrivalAirport: '',
+    arrivalDate: '',
+    heavyLuggage: false,
+    travelingWithPets: false,
+    petPassportReady: false,
+    selectedTransportId: null,
+    transportConfirmedAt: null,
+    completedTasks: {},
+    completedPriorityItems: {}
+  };
+
+  function getLandaState() {
+    try {
+      const raw = localStorage.getItem(LANDA_STORAGE_KEY);
+      if (!raw) return structuredClone(EMPTY_STATE);
+      return { ...structuredClone(EMPTY_STATE), ...JSON.parse(raw) };
+    } catch {
+      return structuredClone(EMPTY_STATE);
+    }
+  }
+
+  function saveLandaState(next) {
+    localStorage.setItem(LANDA_STORAGE_KEY, JSON.stringify(next));
+  }
+
+  function resetLandaState() {
+    localStorage.removeItem(LANDA_STORAGE_KEY);
+  }
+
+  const ALL_TASK_IDS = [
+    'c1-flight','c1-luggage','c1-touchdown',
+    'c2-right-to-rent','c2-neighborhood','c2-deposit',
+    'c3-sim','c3-bank','c3-council',
+    'c4-nhs','c4-ni','c4-transit',
+    'c5-community','c5-explore'
+  ];
+
+  function getProgressPercent(state) {
+    const total = ALL_TASK_IDS.length + 1;
+    let done = state.onboardingCompleted ? 1 : 0;
+    ALL_TASK_IDS.forEach(id => { if (state.completedTasks && state.completedTasks[id]) done++; });
+    return Math.round((done / total) * 100);
+  }
+
+  function getDaysUntil(dateStr) {
+    if (!dateStr) return null;
+    const t = new Date(dateStr + 'T00:00:00');
+    if (isNaN(t.getTime())) return null;
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return Math.ceil((t.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  }
+
+  const ITEMS = [
+    { id: 'transfer', step: 'Step 1', tag: 'Arrival pickup', icon: 'directions_car', bg: 'bg-primary-fixed text-on-primary-fixed', tagColor: 'text-primary', title: 'Airport Transfer Pass', desc: 'Private driver pickup details synced to your chosen UK arrival airport.' },
+    { id: 'esim', step: 'Step 2', tag: 'Instant setup', icon: 'sim_card', bg: 'bg-tertiary-fixed text-on-tertiary-fixed', tagColor: 'text-tertiary', title: 'eSIM & Data Activation', desc: 'Connect to local 5G data instantly without swapping physical SIM cards.' },
+    { id: 'keys', step: 'Step 3', tag: 'Smart lock ready', icon: 'vpn_key', bg: 'bg-secondary-fixed text-on-secondary-fixed', tagColor: 'text-secondary', title: 'Temporary Key Collection', desc: 'Access code and secure entry instructions for your initial residence.' },
+    { id: 'concierge', step: 'Step 4', tag: '24/7 local help', icon: 'support_agent', bg: 'bg-primary-fixed text-on-primary-fixed', tagColor: 'text-primary', title: 'Emergency Support & Concierge', desc: 'Delayed luggage or arrival question? Connect directly with local help.' }
+  ];
+
+  function renderTouchDown() {
+    const state = getLandaState();
+    document.getElementById('header-progress').textContent = getProgressPercent(state) + '%';
+    const heading = document.getElementById('welcome-heading');
+    heading.textContent = state.firstName ? 'Welcome home, ' + state.firstName + '!' : 'Welcome home!';
+
+    const subtitle = document.getElementById('welcome-subtitle');
+    if (state.destinationCity) {
+      subtitle.textContent = 'Your first 24 hours in ' + state.destinationCity + ' are organized below. Tap any card to mark it complete.';
+    }
+
+    const doneCount = ITEMS.filter(i => state.completedPriorityItems && state.completedPriorityItems[i.id]).length;
+    document.getElementById('priority-counter').textContent = doneCount + '/4 Complete';
+
+    document.getElementById('priority-list').innerHTML = ITEMS.map(item => {
+      const done = !!(state.completedPriorityItems && state.completedPriorityItems[item.id]);
+      const dynamicTag = (item.id === 'transfer' && state.arrivalAirport) ? 'Arriving at ' + state.arrivalAirport : item.tag;
+      return `
+        <button type="button" onclick="togglePriority('${item.id}')" class="w-full text-left rounded-[22px] ${done ? 'bg-surface-container-high' : 'bg-surface-container-low'} p-5 shadow-sm hover:shadow-md transition-all flex items-center gap-4">
+          <div class="w-14 h-14 rounded-full ${done ? 'bg-primary text-on-primary' : item.bg} flex items-center justify-center shrink-0 transition-colors">
+            <span class="material-symbols-outlined text-[26px]" style="font-variation-settings:'FILL' 1;">${done ? 'check' : item.icon}</span>
+          </div>
+          <div class="flex-grow min-w-0">
+            <div class="flex items-center gap-2 text-[12px]">
+              <span class="font-semibold uppercase tracking-wider ${done ? 'text-primary' : item.tagColor}">${done ? 'Completed' : item.step}</span>
+              <span class="text-on-surface-variant">· ${dynamicTag}</span>
+            </div>
+            <h3 class="text-[17px] font-semibold text-on-surface truncate">${item.title}</h3>
+            <p class="text-[13px] text-on-surface-variant truncate">${item.desc}</p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant shrink-0">
+            <span class="material-symbols-outlined text-[20px]">${done ? 'check_circle' : 'chevron_right'}</span>
+          </div>
+        </button>`;
+    }).join('');
+  }
+
+  function togglePriority(id) {
+    const state = getLandaState();
+    state.completedPriorityItems[id] = !state.completedPriorityItems[id];
+    if (Object.values(state.completedPriorityItems).some(Boolean)) {
+      state.completedTasks['c1-touchdown'] = true;
+    }
+    saveLandaState(state);
+    renderTouchDown();
+  }
+
+  renderTouchDown();
+</script>
+</body>
+</html>
