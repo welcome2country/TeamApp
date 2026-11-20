@@ -214,6 +214,8 @@
 
   const LANDA_STORAGE_KEY = 'landa_uk_relocation_v1';
   const DEPARTURE_AIRPORTS_BY_COUNTRY = {"United States":[{"code":"JFK","name":"John F. Kennedy International","city":"New York"},{"code":"EWR","name":"Newark Liberty International","city":"Newark / NYC"},{"code":"BOS","name":"Boston Logan International","city":"Boston"},{"code":"ORD","name":"Chicago O'Hare International","city":"Chicago"},{"code":"SFO","name":"San Francisco International","city":"San Francisco"},{"code":"LAX","name":"Los Angeles International","city":"Los Angeles"},{"code":"IAD","name":"Washington Dulles International","city":"Washington, D.C."},{"code":"ATL","name":"Hartsfield-Jackson Atlanta","city":"Atlanta"}],"Canada":[{"code":"YYZ","name":"Toronto Pearson International","city":"Toronto"},{"code":"YVR","name":"Vancouver International","city":"Vancouver"},{"code":"YUL","name":"Montréal-Trudeau International","city":"Montreal"},{"code":"YYC","name":"Calgary International","city":"Calgary"}],"Australia":[{"code":"SYD","name":"Sydney Kingsford Smith","city":"Sydney"},{"code":"MEL","name":"Melbourne Tullamarine","city":"Melbourne"},{"code":"BNE","name":"Brisbane Airport","city":"Brisbane"},{"code":"PER","name":"Perth Airport","city":"Perth"}],"Germany":[{"code":"FRA","name":"Frankfurt Airport","city":"Frankfurt"},{"code":"MUC","name":"Munich Airport","city":"Munich"},{"code":"BER","name":"Berlin Brandenburg","city":"Berlin"},{"code":"DUS","name":"Düsseldorf Airport","city":"Düsseldorf"}],"France":[{"code":"CDG","name":"Paris Charles de Gaulle","city":"Paris"},{"code":"ORY","name":"Paris Orly","city":"Paris"},{"code":"LYS","name":"Lyon-Saint Exupéry","city":"Lyon"},{"code":"NCE","name":"Nice Côte d’Azur","city":"Nice"}],"Singapore":[{"code":"SIN","name":"Singapore Changi Airport","city":"Singapore"}],"India":[{"code":"DEL","name":"Indira Gandhi International","city":"New Delhi"},{"code":"BOM","name":"Chhatrapati Shivaji Maharaj","city":"Mumbai"},{"code":"BLR","name":"Kempegowda International","city":"Bengaluru"},{"code":"MAA","name":"Chennai International","city":"Chennai"}],"Brazil":[{"code":"GRU","name":"São Paulo/Guarulhos","city":"São Paulo"},{"code":"GIG","name":"Rio de Janeiro/Galeão","city":"Rio de Janeiro"}],"Ireland":[{"code":"DUB","name":"Dublin Airport","city":"Dublin"},{"code":"ORK","name":"Cork Airport","city":"Cork"},{"code":"SNN","name":"Shannon Airport","city":"Shannon"}],"Japan":[{"code":"HND","name":"Tokyo Haneda Airport","city":"Tokyo"},{"code":"NRT","name":"Tokyo Narita International","city":"Tokyo"},{"code":"KIX","name":"Kansai International","city":"Osaka"}]};
+  const NEIGHBORHOODS_BY_CITY = {"London":[{"name":"Canary Wharf & Greenwich","vibe":"Waterfront, modern towers & DLR links","multiplier":1.08},{"name":"Shoreditch & Hackney","vibe":"Creative studios, cafes & East London energy","multiplier":1.12},{"name":"Camden & King's Cross","vibe":"Central rail hub, canals & vibrant markets","multiplier":1.18},{"name":"Clapham & Wandsworth","vibe":"Leafy commons, commuter trains & riverside","multiplier":1.04},{"name":"Kensington & Chelsea","vibe":"Museums, garden squares & classic terraces","multiplier":1.48},{"name":"Stratford & Olympic Park","vibe":"Parkland, fast links & new developments","multiplier":0.88}],"Edinburgh":[{"name":"Old Town & City Centre","vibe":"Historic closes, walkable core & university","multiplier":1.12},{"name":"New Town & Stockbridge","vibe":"Georgian crescents, boutiques & Sunday market","multiplier":1.18},{"name":"Leith & The Shore","vibe":"Harbour dining, tram link & waterfront flats","multiplier":0.94},{"name":"Morningside & Bruntsfield","vibe":"Leafy village feel, parks & family homes","multiplier":1.06},{"name":"Marchmont & Newington","vibe":"Tenement flats next to The Meadows","multiplier":1.02}],"Manchester":[{"name":"Northern Quarter & Ancoats","vibe":"Converted mills, indie dining & central walkability","multiplier":1.14},{"name":"Deansgate & Castlefield","vibe":"Canal basin, high-rise living & tram links","multiplier":1.12},{"name":"Didsbury","vibe":"Tree-lined avenues, cafes & suburban rail/tram","multiplier":1.04},{"name":"Chorlton","vibe":"Green spaces, independent shops & family friendly","multiplier":0.98},{"name":"Salford Quays & MediaCity","vibe":"Modern waterfront apartments & Metrolink","multiplier":0.94}],"Bristol":[{"name":"Clifton","vibe":"Georgian terraces, Suspension Bridge & boutiques","multiplier":1.22},{"name":"Harbourside & City Centre","vibe":"Waterfront docks, ferries & central offices","multiplier":1.14},{"name":"Redland & Cotham","vibe":"Leafy streets, local bakeries & rail stations","multiplier":1.06},{"name":"Bedminster & Southville","vibe":"Vibrant North Street, parks & family terraces","multiplier":0.95},{"name":"Stokes Croft & Montpelier","vibe":"Independent culture & colourful townhouses","multiplier":0.96}],"Birmingham":[{"name":"Jewellery Quarter","vibe":"Heritage lofts, artisan workshops & metro link","multiplier":1.08},{"name":"Brindleyplace & City Centre","vibe":"Canal-side apartments near New Street","multiplier":1.12},{"name":"Edgbaston","vibe":"Botanical gardens, leafy streets & larger homes","multiplier":1.06},{"name":"Moseley & Kings Heath","vibe":"Village high street, parks & independent dining","multiplier":0.96},{"name":"Harborne","vibe":"Quiet residential avenues & hospital/uni access","multiplier":0.98}],"Leeds":[{"name":"City Centre & Leeds Dock","vibe":"Riverside apartments & short walk to station","multiplier":1.12},{"name":"Chapel Allerton","vibe":"Leafy suburb, cafes & strong community feel","multiplier":1.04},{"name":"Headingley","vibe":"Victorian terraces, cricket ground & parks","multiplier":0.96},{"name":"Roundhay","vibe":"Spacious family homes beside Roundhay Park","multiplier":1.08},{"name":"Horsforth","vibe":"Commuter rail link & village high street","multiplier":0.95}],"Glasgow":[{"name":"West End & Hillhead","vibe":"Sandstone tenements, university & Byres Road","multiplier":1.16},{"name":"Finnieston","vibe":"Riverside dining, galleries & Kelvingrove Park","multiplier":1.12},{"name":"Merchant City & City Centre","vibe":"Central warehouse conversions & rail access","multiplier":1.06},{"name":"Shawlands & Southside","vibe":"Queen’s Park, bakeries & spacious flats","multiplier":0.94},{"name":"Partick","vibe":"Subway + rail interchange & lively high street","multiplier":0.98}]};
+  const ONS_REGION_BY_CITY = {"London":{"geoCode":"E12000007","regionName":"London","baseOneBedGbp":1850},"Edinburgh":{"geoCode":"S92000003","regionName":"Scotland","baseOneBedGbp":1120},"Manchester":{"geoCode":"E12000002","regionName":"North West","baseOneBedGbp":1050},"Bristol":{"geoCode":"E12000009","regionName":"South West","baseOneBedGbp":1240},"Birmingham":{"geoCode":"E12000005","regionName":"West Midlands","baseOneBedGbp":980},"Leeds":{"geoCode":"E12000003","regionName":"Yorkshire and The Humber","baseOneBedGbp":940},"Glasgow":{"geoCode":"S92000003","regionName":"Scotland","baseOneBedGbp":960}};
   const EMPTY_STATE = {
     firstName: '',
     originCountry: '',
@@ -232,6 +234,15 @@
     petPassportReady: false,
     selectedTransportId: null,
     transportConfirmedAt: null,
+    selectedNeighborhood: '',
+    estimatedMonthlyRentGbp: null,
+    estimatedRentBedrooms: '',
+    onsRegionName: '',
+    onsIndex: null,
+    onsYoYPercent: null,
+    onsPeriod: '',
+    onsSource: '',
+    homeSetupCompleted: false,
     completedTasks: {},
     completedPriorityItems: {}
   };
@@ -382,6 +393,93 @@
       }
     } catch {}
     return computeIndicativeDirectFlight(stateObj.originCountry || '', stateObj.departureAirport || '', arrCode, stateObj.arrivalDate, travelers);
+  }
+
+  function getBedroomProfileForPeople(peopleCount) {
+    if (peopleCount <= 1) return { label: '1-bedroom flat', sizeFactor: 1.0 };
+    if (peopleCount === 2) return { label: '1–2 bedroom flat', sizeFactor: 1.22 };
+    if (peopleCount === 3) return { label: '2–3 bedroom home', sizeFactor: 1.48 };
+    if (peopleCount === 4) return { label: '3-bedroom home', sizeFactor: 1.72 };
+    return {
+      label: Math.min(5, Math.ceil(peopleCount / 2) + 1) + '-bedroom family home',
+      sizeFactor: 1.72 + (peopleCount - 4) * 0.22
+    };
+  }
+
+  function computeOnsRentEstimate(city, neighborhood, peopleCount, onsIndex, onsYoYPercent, onsPeriod, source) {
+    const cityMeta = ONS_REGION_BY_CITY[city] || { geoCode: 'E92000001', regionName: 'England', baseOneBedGbp: 1100 };
+    const areas = NEIGHBORHOODS_BY_CITY[city] || [];
+    const areaMeta = areas.find(a => a.name === neighborhood);
+    const areaMult = areaMeta ? areaMeta.multiplier : 1.0;
+    const safePeople = Math.max(1, peopleCount || 1);
+    const bp = getBedroomProfileForPeople(safePeople);
+    const idx = onsIndex || 121.2;
+    const yoy = (onsYoYPercent !== undefined && onsYoYPercent !== null) ? onsYoYPercent : 6.9;
+    const indexFactor = idx > 0 ? idx / 120 : 1;
+    const estRent = Math.round((cityMeta.baseOneBedGbp * areaMult * bp.sizeFactor * indexFactor) / 10) * 10;
+    return {
+      estimatedMonthlyRentGbp: estRent,
+      bedroomRecommendation: bp.label,
+      peopleCount: safePeople,
+      onsRegionName: cityMeta.regionName,
+      onsGeographyCode: cityMeta.geoCode,
+      onsIndex: idx,
+      onsYoYPercent: yoy,
+      onsPeriod: onsPeriod || 'Latest',
+      source: source || 'ons_indicative'
+    };
+  }
+
+  const ONS_MON = { Jan:0, Feb:1, Mar:2, Apr:3, May:4, Jun:5, Jul:6, Aug:7, Sep:8, Oct:9, Nov:10, Dec:11 };
+  function parseOnsMonth(lbl) {
+    const parts = (lbl || '').split('-');
+    const m = ONS_MON[parts[0]];
+    const y = Number(parts[1]);
+    if (m === undefined || isNaN(y)) return -1;
+    return (y >= 70 ? 1900 + y : 2000 + y) * 12 + m;
+  }
+
+  async function fetchOnsRentEstimate(city, neighborhood, peopleCount) {
+    const safePeople = Math.max(1, peopleCount || 1);
+    try {
+      const res = await fetch('/api/ons/rent-estimate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ city: city || '', neighborhood: neighborhood || '', peopleCount: safePeople })
+      });
+      if (res.ok) {
+        const d = await res.json();
+        if (typeof d.estimatedMonthlyRentGbp === 'number') return d;
+      }
+    } catch {}
+    try {
+      const cityMeta = ONS_REGION_BY_CITY[city] || { geoCode: 'E92000001' };
+      const baseVer = 'https://api.beta.ons.gov.uk/v1/datasets/index-private-housing-rental-prices/editions/time-series/versions/41';
+      const [idxR, yoyR] = await Promise.all([
+        fetch(baseVer + '/observations?geography=' + encodeURIComponent(cityMeta.geoCode) + '&indexandyearchange=index&time=*'),
+        fetch(baseVer + '/observations?geography=' + encodeURIComponent(cityMeta.geoCode) + '&indexandyearchange=year-on-year-change&time=*')
+      ]);
+      if (idxR.ok) {
+        const idxJ = await idxR.json();
+        const yoyJ = yoyR.ok ? await yoyR.json() : { observations: [] };
+        let bestS = -1, period = 'Latest', idxVal = 121.2;
+        (idxJ.observations || []).forEach(o => {
+          const l = o && o.dimensions && o.dimensions.Time ? o.dimensions.Time.label : '';
+          const v = Number(o.observation);
+          const sc = parseOnsMonth(l);
+          if (sc > bestS && !isNaN(v) && v > 0) { bestS = sc; period = l; idxVal = v; }
+        });
+        let bestY = -1, yoyVal = 6.9;
+        (yoyJ.observations || []).forEach(o => {
+          const l = o && o.dimensions && o.dimensions.Time ? o.dimensions.Time.label : '';
+          const v = Number(o.observation);
+          const sc = parseOnsMonth(l);
+          if (sc > bestY && !isNaN(v)) { bestY = sc; yoyVal = v; }
+        });
+        return computeOnsRentEstimate(city, neighborhood, safePeople, idxVal, yoyVal, period, 'ons_live_api');
+      }
+    } catch {}
+    return computeOnsRentEstimate(city, neighborhood, safePeople);
   }
 
   let state = getLandaState();

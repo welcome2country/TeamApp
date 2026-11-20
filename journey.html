@@ -159,6 +159,8 @@
 
   const LANDA_STORAGE_KEY = 'landa_uk_relocation_v1';
   const DEPARTURE_AIRPORTS_BY_COUNTRY = {"United States":[{"code":"JFK","name":"John F. Kennedy International","city":"New York"},{"code":"EWR","name":"Newark Liberty International","city":"Newark / NYC"},{"code":"BOS","name":"Boston Logan International","city":"Boston"},{"code":"ORD","name":"Chicago O'Hare International","city":"Chicago"},{"code":"SFO","name":"San Francisco International","city":"San Francisco"},{"code":"LAX","name":"Los Angeles International","city":"Los Angeles"},{"code":"IAD","name":"Washington Dulles International","city":"Washington, D.C."},{"code":"ATL","name":"Hartsfield-Jackson Atlanta","city":"Atlanta"}],"Canada":[{"code":"YYZ","name":"Toronto Pearson International","city":"Toronto"},{"code":"YVR","name":"Vancouver International","city":"Vancouver"},{"code":"YUL","name":"Montréal-Trudeau International","city":"Montreal"},{"code":"YYC","name":"Calgary International","city":"Calgary"}],"Australia":[{"code":"SYD","name":"Sydney Kingsford Smith","city":"Sydney"},{"code":"MEL","name":"Melbourne Tullamarine","city":"Melbourne"},{"code":"BNE","name":"Brisbane Airport","city":"Brisbane"},{"code":"PER","name":"Perth Airport","city":"Perth"}],"Germany":[{"code":"FRA","name":"Frankfurt Airport","city":"Frankfurt"},{"code":"MUC","name":"Munich Airport","city":"Munich"},{"code":"BER","name":"Berlin Brandenburg","city":"Berlin"},{"code":"DUS","name":"Düsseldorf Airport","city":"Düsseldorf"}],"France":[{"code":"CDG","name":"Paris Charles de Gaulle","city":"Paris"},{"code":"ORY","name":"Paris Orly","city":"Paris"},{"code":"LYS","name":"Lyon-Saint Exupéry","city":"Lyon"},{"code":"NCE","name":"Nice Côte d’Azur","city":"Nice"}],"Singapore":[{"code":"SIN","name":"Singapore Changi Airport","city":"Singapore"}],"India":[{"code":"DEL","name":"Indira Gandhi International","city":"New Delhi"},{"code":"BOM","name":"Chhatrapati Shivaji Maharaj","city":"Mumbai"},{"code":"BLR","name":"Kempegowda International","city":"Bengaluru"},{"code":"MAA","name":"Chennai International","city":"Chennai"}],"Brazil":[{"code":"GRU","name":"São Paulo/Guarulhos","city":"São Paulo"},{"code":"GIG","name":"Rio de Janeiro/Galeão","city":"Rio de Janeiro"}],"Ireland":[{"code":"DUB","name":"Dublin Airport","city":"Dublin"},{"code":"ORK","name":"Cork Airport","city":"Cork"},{"code":"SNN","name":"Shannon Airport","city":"Shannon"}],"Japan":[{"code":"HND","name":"Tokyo Haneda Airport","city":"Tokyo"},{"code":"NRT","name":"Tokyo Narita International","city":"Tokyo"},{"code":"KIX","name":"Kansai International","city":"Osaka"}]};
+  const NEIGHBORHOODS_BY_CITY = {"London":[{"name":"Canary Wharf & Greenwich","vibe":"Waterfront, modern towers & DLR links","multiplier":1.08},{"name":"Shoreditch & Hackney","vibe":"Creative studios, cafes & East London energy","multiplier":1.12},{"name":"Camden & King's Cross","vibe":"Central rail hub, canals & vibrant markets","multiplier":1.18},{"name":"Clapham & Wandsworth","vibe":"Leafy commons, commuter trains & riverside","multiplier":1.04},{"name":"Kensington & Chelsea","vibe":"Museums, garden squares & classic terraces","multiplier":1.48},{"name":"Stratford & Olympic Park","vibe":"Parkland, fast links & new developments","multiplier":0.88}],"Edinburgh":[{"name":"Old Town & City Centre","vibe":"Historic closes, walkable core & university","multiplier":1.12},{"name":"New Town & Stockbridge","vibe":"Georgian crescents, boutiques & Sunday market","multiplier":1.18},{"name":"Leith & The Shore","vibe":"Harbour dining, tram link & waterfront flats","multiplier":0.94},{"name":"Morningside & Bruntsfield","vibe":"Leafy village feel, parks & family homes","multiplier":1.06},{"name":"Marchmont & Newington","vibe":"Tenement flats next to The Meadows","multiplier":1.02}],"Manchester":[{"name":"Northern Quarter & Ancoats","vibe":"Converted mills, indie dining & central walkability","multiplier":1.14},{"name":"Deansgate & Castlefield","vibe":"Canal basin, high-rise living & tram links","multiplier":1.12},{"name":"Didsbury","vibe":"Tree-lined avenues, cafes & suburban rail/tram","multiplier":1.04},{"name":"Chorlton","vibe":"Green spaces, independent shops & family friendly","multiplier":0.98},{"name":"Salford Quays & MediaCity","vibe":"Modern waterfront apartments & Metrolink","multiplier":0.94}],"Bristol":[{"name":"Clifton","vibe":"Georgian terraces, Suspension Bridge & boutiques","multiplier":1.22},{"name":"Harbourside & City Centre","vibe":"Waterfront docks, ferries & central offices","multiplier":1.14},{"name":"Redland & Cotham","vibe":"Leafy streets, local bakeries & rail stations","multiplier":1.06},{"name":"Bedminster & Southville","vibe":"Vibrant North Street, parks & family terraces","multiplier":0.95},{"name":"Stokes Croft & Montpelier","vibe":"Independent culture & colourful townhouses","multiplier":0.96}],"Birmingham":[{"name":"Jewellery Quarter","vibe":"Heritage lofts, artisan workshops & metro link","multiplier":1.08},{"name":"Brindleyplace & City Centre","vibe":"Canal-side apartments near New Street","multiplier":1.12},{"name":"Edgbaston","vibe":"Botanical gardens, leafy streets & larger homes","multiplier":1.06},{"name":"Moseley & Kings Heath","vibe":"Village high street, parks & independent dining","multiplier":0.96},{"name":"Harborne","vibe":"Quiet residential avenues & hospital/uni access","multiplier":0.98}],"Leeds":[{"name":"City Centre & Leeds Dock","vibe":"Riverside apartments & short walk to station","multiplier":1.12},{"name":"Chapel Allerton","vibe":"Leafy suburb, cafes & strong community feel","multiplier":1.04},{"name":"Headingley","vibe":"Victorian terraces, cricket ground & parks","multiplier":0.96},{"name":"Roundhay","vibe":"Spacious family homes beside Roundhay Park","multiplier":1.08},{"name":"Horsforth","vibe":"Commuter rail link & village high street","multiplier":0.95}],"Glasgow":[{"name":"West End & Hillhead","vibe":"Sandstone tenements, university & Byres Road","multiplier":1.16},{"name":"Finnieston","vibe":"Riverside dining, galleries & Kelvingrove Park","multiplier":1.12},{"name":"Merchant City & City Centre","vibe":"Central warehouse conversions & rail access","multiplier":1.06},{"name":"Shawlands & Southside","vibe":"Queen’s Park, bakeries & spacious flats","multiplier":0.94},{"name":"Partick","vibe":"Subway + rail interchange & lively high street","multiplier":0.98}]};
+  const ONS_REGION_BY_CITY = {"London":{"geoCode":"E12000007","regionName":"London","baseOneBedGbp":1850},"Edinburgh":{"geoCode":"S92000003","regionName":"Scotland","baseOneBedGbp":1120},"Manchester":{"geoCode":"E12000002","regionName":"North West","baseOneBedGbp":1050},"Bristol":{"geoCode":"E12000009","regionName":"South West","baseOneBedGbp":1240},"Birmingham":{"geoCode":"E12000005","regionName":"West Midlands","baseOneBedGbp":980},"Leeds":{"geoCode":"E12000003","regionName":"Yorkshire and The Humber","baseOneBedGbp":940},"Glasgow":{"geoCode":"S92000003","regionName":"Scotland","baseOneBedGbp":960}};
   const EMPTY_STATE = {
     firstName: '',
     originCountry: '',
@@ -177,6 +179,15 @@
     petPassportReady: false,
     selectedTransportId: null,
     transportConfirmedAt: null,
+    selectedNeighborhood: '',
+    estimatedMonthlyRentGbp: null,
+    estimatedRentBedrooms: '',
+    onsRegionName: '',
+    onsIndex: null,
+    onsYoYPercent: null,
+    onsPeriod: '',
+    onsSource: '',
+    homeSetupCompleted: false,
     completedTasks: {},
     completedPriorityItems: {}
   };
@@ -329,6 +340,93 @@
     return computeIndicativeDirectFlight(stateObj.originCountry || '', stateObj.departureAirport || '', arrCode, stateObj.arrivalDate, travelers);
   }
 
+  function getBedroomProfileForPeople(peopleCount) {
+    if (peopleCount <= 1) return { label: '1-bedroom flat', sizeFactor: 1.0 };
+    if (peopleCount === 2) return { label: '1–2 bedroom flat', sizeFactor: 1.22 };
+    if (peopleCount === 3) return { label: '2–3 bedroom home', sizeFactor: 1.48 };
+    if (peopleCount === 4) return { label: '3-bedroom home', sizeFactor: 1.72 };
+    return {
+      label: Math.min(5, Math.ceil(peopleCount / 2) + 1) + '-bedroom family home',
+      sizeFactor: 1.72 + (peopleCount - 4) * 0.22
+    };
+  }
+
+  function computeOnsRentEstimate(city, neighborhood, peopleCount, onsIndex, onsYoYPercent, onsPeriod, source) {
+    const cityMeta = ONS_REGION_BY_CITY[city] || { geoCode: 'E92000001', regionName: 'England', baseOneBedGbp: 1100 };
+    const areas = NEIGHBORHOODS_BY_CITY[city] || [];
+    const areaMeta = areas.find(a => a.name === neighborhood);
+    const areaMult = areaMeta ? areaMeta.multiplier : 1.0;
+    const safePeople = Math.max(1, peopleCount || 1);
+    const bp = getBedroomProfileForPeople(safePeople);
+    const idx = onsIndex || 121.2;
+    const yoy = (onsYoYPercent !== undefined && onsYoYPercent !== null) ? onsYoYPercent : 6.9;
+    const indexFactor = idx > 0 ? idx / 120 : 1;
+    const estRent = Math.round((cityMeta.baseOneBedGbp * areaMult * bp.sizeFactor * indexFactor) / 10) * 10;
+    return {
+      estimatedMonthlyRentGbp: estRent,
+      bedroomRecommendation: bp.label,
+      peopleCount: safePeople,
+      onsRegionName: cityMeta.regionName,
+      onsGeographyCode: cityMeta.geoCode,
+      onsIndex: idx,
+      onsYoYPercent: yoy,
+      onsPeriod: onsPeriod || 'Latest',
+      source: source || 'ons_indicative'
+    };
+  }
+
+  const ONS_MON = { Jan:0, Feb:1, Mar:2, Apr:3, May:4, Jun:5, Jul:6, Aug:7, Sep:8, Oct:9, Nov:10, Dec:11 };
+  function parseOnsMonth(lbl) {
+    const parts = (lbl || '').split('-');
+    const m = ONS_MON[parts[0]];
+    const y = Number(parts[1]);
+    if (m === undefined || isNaN(y)) return -1;
+    return (y >= 70 ? 1900 + y : 2000 + y) * 12 + m;
+  }
+
+  async function fetchOnsRentEstimate(city, neighborhood, peopleCount) {
+    const safePeople = Math.max(1, peopleCount || 1);
+    try {
+      const res = await fetch('/api/ons/rent-estimate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ city: city || '', neighborhood: neighborhood || '', peopleCount: safePeople })
+      });
+      if (res.ok) {
+        const d = await res.json();
+        if (typeof d.estimatedMonthlyRentGbp === 'number') return d;
+      }
+    } catch {}
+    try {
+      const cityMeta = ONS_REGION_BY_CITY[city] || { geoCode: 'E92000001' };
+      const baseVer = 'https://api.beta.ons.gov.uk/v1/datasets/index-private-housing-rental-prices/editions/time-series/versions/41';
+      const [idxR, yoyR] = await Promise.all([
+        fetch(baseVer + '/observations?geography=' + encodeURIComponent(cityMeta.geoCode) + '&indexandyearchange=index&time=*'),
+        fetch(baseVer + '/observations?geography=' + encodeURIComponent(cityMeta.geoCode) + '&indexandyearchange=year-on-year-change&time=*')
+      ]);
+      if (idxR.ok) {
+        const idxJ = await idxR.json();
+        const yoyJ = yoyR.ok ? await yoyR.json() : { observations: [] };
+        let bestS = -1, period = 'Latest', idxVal = 121.2;
+        (idxJ.observations || []).forEach(o => {
+          const l = o && o.dimensions && o.dimensions.Time ? o.dimensions.Time.label : '';
+          const v = Number(o.observation);
+          const sc = parseOnsMonth(l);
+          if (sc > bestS && !isNaN(v) && v > 0) { bestS = sc; period = l; idxVal = v; }
+        });
+        let bestY = -1, yoyVal = 6.9;
+        (yoyJ.observations || []).forEach(o => {
+          const l = o && o.dimensions && o.dimensions.Time ? o.dimensions.Time.label : '';
+          const v = Number(o.observation);
+          const sc = parseOnsMonth(l);
+          if (sc > bestY && !isNaN(v)) { bestY = sc; yoyVal = v; }
+        });
+        return computeOnsRentEstimate(city, neighborhood, safePeople, idxVal, yoyVal, period, 'ons_live_api');
+      }
+    } catch {}
+    return computeOnsRentEstimate(city, neighborhood, safePeople);
+  }
+
   const CHAPTERS = [
     {
       number: 1, icon: 'flight', title: 'Transport to the UK',
@@ -340,21 +438,21 @@
       ]
     },
     {
-      number: 2, icon: 'home', title: 'Your first home',
-      summary: 'Neighborhood guides, tenancy checklist, deposit protection rules, and Right to Rent docs.',
-      tasks: [
-        { id: 'c2-right-to-rent', label: 'Prepare Right to Rent share code', meta: 'Tenancy' },
-        { id: 'c2-neighborhood', label: 'Shortlist 3 target neighborhoods', meta: 'Research' },
-        { id: 'c2-deposit', label: 'Review UK Tenancy Deposit Scheme rules', meta: 'Protection' }
-      ]
-    },
-    {
-      number: 3, icon: 'sim_card', title: 'Get connected',
+      number: 2, icon: 'sim_card', title: 'Get connected',
       summary: 'Set up your UK mobile number, local bank account proof of address, and utility accounts.',
       tasks: [
         { id: 'c3-sim', label: 'Activate UK mobile plan or eSIM', meta: 'Connectivity' },
         { id: 'c3-bank', label: 'Open UK bank account', meta: 'Finance' },
         { id: 'c3-council', label: 'Register for Council Tax & utilities', meta: 'Home setup' }
+      ]
+    },
+    {
+      number: 3, icon: 'home', title: 'Your first home',
+      summary: 'Neighborhood guides, ONS private rent estimates, tenancy checklist, deposit protection rules, and Right to Rent docs.',
+      tasks: [
+        { id: 'c2-right-to-rent', label: 'Prepare Right to Rent share code', meta: 'Tenancy' },
+        { id: 'c2-neighborhood', label: 'Shortlist 3 target neighborhoods', meta: 'Research' },
+        { id: 'c2-deposit', label: 'Review UK Tenancy Deposit Scheme rules', meta: 'Protection' }
       ]
     },
     {
@@ -377,7 +475,9 @@
   ];
 
   let state = getLandaState();
-  let expandedChapter = state.selectedTransportId ? 2 : 1;
+  const urlParams = new URLSearchParams(window.location.search);
+  const queryChapter = Number(urlParams.get('chapter'));
+  let expandedChapter = queryChapter || (state.selectedTransportId ? 2 : 1);
 
   function renderAll() {
     state = getLandaState();
@@ -447,12 +547,12 @@
     const list = document.getElementById('chapters-list');
     const ch1Done = !!state.selectedTransportId;
     list.innerHTML = CHAPTERS.map(ch => {
-      const unlocked = ch.number === 1 || (ch.number === 2 && ch1Done) || (ch.number > 2 && state.completedTasks['c2-right-to-rent']);
+      const unlocked = ch.number === 1 || (ch.number === 2 && ch1Done) || (ch.number === 3 && (ch1Done || state.completedTasks['c3-sim'] || state.completedTasks['c3-bank'] || state.homeSetupCompleted)) || (ch.number > 3 && (state.homeSetupCompleted || state.completedTasks['c2-right-to-rent']));
       const isOpen = expandedChapter === ch.number;
       const statusText = unlocked ? (ch.number === 1 && !ch1Done ? 'ACTIVE' : 'UNLOCKED') : 'LOCKED';
       return `
         <div class="rounded-[24px] bg-surface-container-low shadow-sm overflow-hidden transition-all">
-          <button type="button" onclick="toggleChapter(${ch.number})" class="w-full p-5 flex items-center justify-between text-left">
+          <button type="button" onclick="handleChapterClick(${ch.number})" class="w-full p-5 flex items-center justify-between text-left">
             <div class="flex items-center gap-4">
               <div class="w-12 h-12 rounded-2xl ${unlocked ? 'bg-primary-container text-on-primary-container shadow-md' : 'bg-surface-container text-on-surface-variant'} flex items-center justify-center shrink-0">
                 <span class="material-symbols-outlined" ${unlocked ? 'style="font-variation-settings:\'FILL\' 1;"' : ''}>${ch.icon}</span>
@@ -471,19 +571,49 @@
           </button>
           <div class="${isOpen ? '' : 'hidden'} px-5 pb-5 space-y-3">
             <p class="text-[13px] text-on-surface-variant">${ch.summary}</p>
-            <div class="p-4 rounded-2xl bg-surface-container-lowest shadow-sm space-y-3">
-              ${ch.tasks.map(t => {
-                const checked = !!(state.completedTasks && state.completedTasks[t.id]);
-                return `
-                  <button type="button" onclick="toggleTask('${t.id}')" class="w-full flex items-center justify-between gap-3 text-left py-1">
-                    <div class="flex items-center gap-2.5">
-                      <span class="material-symbols-outlined text-[20px] ${checked ? 'text-primary' : 'text-outline'}" ${checked ? 'style="font-variation-settings:\'FILL\' 1;"' : ''}>${checked ? 'check_circle' : 'radio_button_unchecked'}</span>
-                      <span class="text-[14px] font-medium ${checked ? 'line-through opacity-60 text-on-surface' : 'text-on-surface'}">${t.label}</span>
-                    </div>
-                    <span class="text-[12px] font-medium ${checked ? 'text-primary' : 'text-on-surface-variant'} shrink-0">${checked ? 'Done' : t.meta}</span>
-                  </button>`;
-              }).join('')}
-            </div>
+            ${(ch.number === 3 && state.homeSetupCompleted && state.selectedNeighborhood) ? `
+              <div class="p-3.5 rounded-2xl bg-surface-container-lowest shadow-sm flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2.5 text-[13px]">
+                  <span class="material-symbols-outlined text-primary text-[18px]">location_on</span>
+                  <span><strong>${state.selectedNeighborhood}</strong>${state.estimatedMonthlyRentGbp !== null && state.estimatedMonthlyRentGbp !== undefined ? ' · ONS Est. £' + Number(state.estimatedMonthlyRentGbp).toLocaleString() + '/mo (' + (state.estimatedRentBedrooms || 'Private Rent') + ')' : ''}</span>
+                </div>
+                <a href="home-setup.html" class="text-[12px] font-semibold text-primary hover:underline">Change area</a>
+              </div>
+            ` : ''}
+            ${(ch.number === 3 && !state.homeSetupCompleted) ? `
+              <a href="home-setup.html" class="w-full py-3.5 px-5 rounded-full bg-primary text-on-primary font-semibold text-[14px] shadow-lg shadow-primary/20 hover:opacity-95 transition-opacity flex items-center justify-center gap-2">
+                <span>Choose Neighbourhood &amp; ONS Rent Estimate</span>
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+              </a>
+            ` : `
+              <div class="p-4 rounded-2xl bg-surface-container-lowest shadow-sm space-y-3">
+                ${ch.tasks.map(t => {
+                  const checked = !!(state.completedTasks && state.completedTasks[t.id]);
+                  return `
+                    <button type="button" onclick="toggleTask('${t.id}')" class="w-full flex items-center justify-between gap-3 text-left py-1">
+                      <div class="flex items-center gap-2.5">
+                        <span class="material-symbols-outlined text-[20px] ${checked ? 'text-primary' : 'text-outline'}" ${checked ? 'style="font-variation-settings:\'FILL\' 1;"' : ''}>${checked ? 'check_circle' : 'radio_button_unchecked'}</span>
+                        <span class="text-[14px] font-medium ${checked ? 'line-through opacity-60 text-on-surface' : 'text-on-surface'}">${t.label}</span>
+                      </div>
+                      <span class="text-[12px] font-medium ${checked ? 'text-primary' : 'text-on-surface-variant'} shrink-0">${checked ? 'Done' : t.meta}</span>
+                    </button>`;
+                }).join('')}
+              </div>
+            `}
+            ${ch.number === 4 ? `
+              <a href="https://www.nhs.uk/service-search/find-a-gp" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-surface-container-lowest shadow-sm hover:bg-surface-container-high transition-colors">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-9 h-9 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-[18px]">medical_services</span>
+                  </div>
+                  <div class="min-w-0">
+                    <span class="text-[13px] font-semibold text-on-surface block">Find an NHS GP surgery</span>
+                    <span class="text-[11px] text-on-surface-variant truncate block">nhs.uk/service-search/find-a-gp</span>
+                  </div>
+                </div>
+                <span class="inline-flex items-center gap-1 text-[12px] font-semibold text-primary shrink-0"><span>Search GP</span><span class="material-symbols-outlined text-[15px]">open_in_new</span></span>
+              </a>
+            ` : ''}
             ${ch.number === 1 ? `
               <div class="flex flex-col sm:flex-row gap-2.5">
                 <button type="button" onclick="confirmChapter1()" class="flex-1 py-3.5 px-5 rounded-full bg-primary text-on-primary font-semibold text-[14px] shadow-lg shadow-primary/20 hover:opacity-95 transition-opacity flex items-center justify-center gap-2">
@@ -498,7 +628,11 @@
     }).join('');
   }
 
-  function toggleChapter(num) {
+  function handleChapterClick(num) {
+    if (num === 3 && !state.homeSetupCompleted) {
+      window.location.href = 'home-setup.html';
+      return;
+    }
     expandedChapter = expandedChapter === num ? 0 : num;
     renderAll();
   }
