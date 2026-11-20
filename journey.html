@@ -164,6 +164,7 @@
     destinationCity: '',
     purpose: null,
     household: null,
+    familyMembers: [],
     onboardingCompleted: false,
     arrivalAirport: '',
     arrivalDate: '',
@@ -295,12 +296,15 @@
       const daysLabel = days === null ? 'Date not set' : (days > 0 ? days + ' days to go' : (days === 0 ? 'Arriving today' : 'Arrived'));
       const purposeLabel = state.purpose === 'work' ? 'Career & Work' : 'Study & Uni';
       const hhLabel = state.household ? state.household.charAt(0).toUpperCase() + state.household.slice(1) : '';
+      const fmCount = state.household === 'family' && Array.isArray(state.familyMembers) && state.familyMembers.length > 0
+        ? ' (' + state.familyMembers.length + (state.familyMembers.length === 1 ? ' member' : ' members') + ')'
+        : '';
       hero.innerHTML = `
         <div class="relative z-10 flex flex-col gap-3">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div class="flex flex-wrap items-center gap-2">
               <span class="bg-white/20 backdrop-blur-md text-white px-3 py-1 rounded-full text-[12px] font-medium">${purposeLabel}</span>
-              <span class="text-on-primary-container text-[13px]">· Household: ${hhLabel}</span>
+              <span class="text-on-primary-container text-[13px]">· Household: ${hhLabel}${fmCount}</span>
             </div>
             <div class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[12px] font-semibold">
               <span class="material-symbols-outlined text-[15px]">schedule</span>

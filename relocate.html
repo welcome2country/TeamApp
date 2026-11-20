@@ -241,6 +241,20 @@
           <span class="text-[14px] font-medium">Family</span>
         </button>
       </div>
+
+      <div id="family-section" class="hidden bg-surface-container-lowest p-5 rounded-[24px] shadow-[0_8px_24px_rgba(99,14,212,0.06)] flex flex-col gap-4 mt-1">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="text-[16px] font-semibold text-on-surface">Family members moving with you</h3>
+            <p class="text-[12px] text-on-surface-variant">Add each person's relationship and age so we can tailor visa and schooling steps.</p>
+          </div>
+          <button type="button" onclick="addFamilyMember()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-primary-fixed text-on-primary-fixed text-[12px] font-semibold hover:opacity-90 transition-opacity">
+            <span class="material-symbols-outlined text-[16px]">add</span>
+            <span>Add person</span>
+          </button>
+        </div>
+        <div id="family-members-list" class="flex flex-col gap-3"></div>
+      </div>
     </div>
 
     <div class="relative w-full h-40 rounded-[24px] overflow-hidden shadow-lg flex items-end p-5 group">
@@ -294,6 +308,7 @@
     destinationCity: '',
     purpose: null,
     household: null,
+    familyMembers: [],
     onboardingCompleted: false,
     arrivalAirport: '',
     arrivalDate: '',
@@ -351,11 +366,16 @@
   let state = getLandaState();
   let currentPurpose = state.purpose || null;
   let currentHousehold = state.household || null;
+  let familyMembers = Array.isArray(state.familyMembers) ? state.familyMembers : [];
 
   document.getElementById('header-progress').textContent = getProgressPercent(state) + '%';
   if (state.originCountry) document.getElementById('origin-select').value = state.originCountry;
   if (state.destinationCity) document.getElementById('city-select').value = state.destinationCity;
   if (state.firstName) document.getElementById('first-name').value = state.firstName;
+
+  function createBlankMember() {
+    return { id: 'fm-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7), relationship: '', age: '' };
+  }
 
   function renderPurpose() {
     ['work', 'education'].forEach(p => {
@@ -374,6 +394,39 @@
     });
   }
 
+  function renderFamilySection() {
+    const sec = document.getElementById('family-section');
+    const list = document.getElementById('family-members-list');
+    sec.classList.toggle('hidden', currentHousehold !== 'family');
+    if (currentHousehold !== 'family') return;
+    if (familyMembers.length === 0) {
+      list.innerHTML = '<p class="text-[13px] text-on-surface-variant bg-surface-container-low rounded-2xl p-4">No family members added yet. Click "Add person" above to add someone.</p>';
+      return;
+    }
+    const types = ['Child', 'Spouse / Partner', 'Parent', 'Other Dependent'];
+    list.innerHTML = familyMembers.map((m, idx) => `
+      <div class="grid grid-cols-1 sm:grid-cols-[1fr_120px_auto] gap-3 items-end bg-surface-container-low p-3.5 rounded-2xl">
+        <div class="flex flex-col gap-1">
+          <label class="text-[11px] font-medium text-on-surface-variant">Person ${idx + 1} · Relationship</label>
+          <div class="relative flex items-center bg-surface-container-lowest rounded-xl px-3.5 py-2.5">
+            <select onchange="updateFamilyMember('${m.id}', 'relationship', this.value)" class="w-full bg-transparent outline-none text-[14px] font-medium text-on-surface cursor-pointer appearance-none pr-6">
+              <option value="" disabled ${!m.relationship ? 'selected' : ''}>Select type...</option>
+              ${types.map(t => '<option value="' + t + '" ' + (m.relationship === t ? 'selected' : '') + '>' + t + '</option>').join('')}
+            </select>
+            <span class="material-symbols-outlined text-on-surface-variant pointer-events-none text-[18px]">expand_more</span>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-[11px] font-medium text-on-surface-variant">Age</label>
+          <input type="number" min="0" max="120" placeholder="Age" value="${m.age || ''}" oninput="updateFamilyMember('${m.id}', 'age', this.value)" class="w-full bg-surface-container-lowest rounded-xl px-3.5 py-2.5 text-[14px] font-medium text-on-surface placeholder:text-outline outline-none tabular-nums" />
+        </div>
+        <button type="button" onclick="removeFamilyMember('${m.id}')" aria-label="Remove person ${idx + 1}" class="min-w-[44px] min-h-[44px] rounded-xl bg-surface-container-lowest text-error hover:bg-error-container transition-colors flex items-center justify-center">
+          <span class="material-symbols-outlined text-[18px]">delete</span>
+        </button>
+      </div>
+    `).join('');
+  }
+
   function renderHousehold() {
     ['solo', 'couple', 'family'].forEach(t => {
       const btn = document.getElementById('hh-' + t);
@@ -383,6 +436,7 @@
         btn.className = "flex flex-col items-center justify-center p-4 rounded-[20px] bg-surface-container-lowest text-on-surface transition-all shadow-sm hover:bg-surface-container-high border-2 border-transparent min-h-[84px]";
       }
     });
+    renderFamilySection();
   }
 
   function selectPurpose(purpose) {
@@ -392,7 +446,24 @@
 
   function selectHousehold(type) {
     currentHousehold = type;
+    if (type === 'family' && familyMembers.length === 0) {
+      familyMembers = [createBlankMember()];
+    }
     renderHousehold();
+  }
+
+  function addFamilyMember() {
+    familyMembers.push(createBlankMember());
+    renderFamilySection();
+  }
+
+  function updateFamilyMember(id, field, value) {
+    familyMembers = familyMembers.map(m => m.id === id ? { ...m, [field]: value } : m);
+  }
+
+  function removeFamilyMember(id) {
+    familyMembers = familyMembers.filter(m => m.id !== id);
+    renderFamilySection();
   }
 
   renderPurpose();
@@ -417,6 +488,23 @@
       return;
     }
 
+    if (currentHousehold === 'family') {
+      if (familyMembers.length === 0) {
+        errEl.textContent = 'Please add at least one family member with their type and age.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      const bad = familyMembers.some(m => {
+        const a = Number(m.age);
+        return !m.relationship || String(m.age).trim() === '' || isNaN(a) || a < 0 || a > 120;
+      });
+      if (bad) {
+        errEl.textContent = 'Please enter a relationship type and valid age (0–120) for each family member.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+    }
+
     errEl.classList.add('hidden');
     state = {
       ...state,
@@ -425,6 +513,7 @@
       destinationCity: city,
       purpose: currentPurpose,
       household: currentHousehold,
+      familyMembers: currentHousehold === 'family' ? familyMembers : [],
       onboardingCompleted: true
     };
     saveLandaState(state);

@@ -158,6 +158,7 @@
     destinationCity: '',
     purpose: null,
     household: null,
+    familyMembers: [],
     onboardingCompleted: false,
     arrivalAirport: '',
     arrivalDate: '',
@@ -219,10 +220,14 @@
     if (!state.onboardingCompleted) {
       el.innerHTML = '<p>No relocation preferences saved yet. Start in Relocate to configure your move.</p>';
     } else {
+      const fmList = state.household === 'family' && Array.isArray(state.familyMembers) && state.familyMembers.length > 0
+        ? '<p><strong>Family Members:</strong> ' + state.familyMembers.map(m => (m.relationship || 'Person') + ' (Age ' + (m.age || '—') + ')').join(', ') + '</p>'
+        : '';
       el.innerHTML = `
         <p><strong>Route:</strong> ${state.originCountry} → ${state.destinationCity}</p>
         <p><strong>Purpose:</strong> ${state.purpose === 'work' ? 'Career & Work' : 'Study & Uni'}</p>
         <p><strong>Household:</strong> ${state.household || 'Not set'}</p>
+        ${fmList}
         <p><strong>Arrival Airport:</strong> ${state.arrivalAirport || 'Not set'}</p>
         <p><strong>Target Date:</strong> ${state.arrivalDate || 'Not set'}</p>
         <p><strong>Progress:</strong> ${getProgressPercent(state)}%</p>
