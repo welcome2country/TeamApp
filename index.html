@@ -81,6 +81,13 @@
       position: relative;
     }
 
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
     .brand-badge {
       display: inline-flex;
       align-items: center;
@@ -93,7 +100,6 @@
       font-size: 0.8rem;
       font-weight: 600;
       letter-spacing: 0.5px;
-      margin-bottom: 16px;
       color: #93c5fd;
     }
 
@@ -102,6 +108,32 @@
       height: 16px;
       fill: none;
       stroke: currentColor;
+    }
+
+    /* Elegant Language Dropdown */
+    .lang-selector-wrapper {
+      position: relative;
+    }
+
+    .lang-select {
+      background: rgba(30, 41, 66, 0.8);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .lang-select:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
     }
 
     .header h1 {
@@ -529,23 +561,80 @@
       color: var(--text-main);
       text-align: right;
     }
+
+    /* Translation Overlay Loader */
+    .translation-loader {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(11, 15, 25, 0.85);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      color: var(--primary-hover);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .translation-loader.active {
+      display: flex;
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid rgba(59, 130, 246, 0.2);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
 
-  <main class="app-container">
+  <main class="app-container" style="position: relative;">
+    <!-- Translation Loading Overlay -->
+    <div class="translation-loader" id="trans-loader">
+      <div class="spinner"></div>
+      <span class="trn" data-key="translating">Translating page...</span>
+    </div>
+
     <!-- Header / Welcome to Landa -->
     <header class="header">
-      <div class="brand-badge">
-        <svg viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
-          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" fill="none" stroke="currentColor" stroke-width="1.8"/>
-          <path d="M2 12h20" stroke="currentColor" stroke-width="1.8"/>
-        </svg>
-        UK Relocation Navigator
+      <div class="header-top">
+        <div class="brand-badge">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M2 12h20" stroke="currentColor" stroke-width="1.8"/>
+          </svg>
+          <span class="trn" data-key="brand_title">UK Relocation Navigator</span>
+        </div>
+
+        <!-- Language Selector dropdown -->
+        <div class="lang-selector-wrapper">
+          <select class="lang-select" id="lang-select">
+            <option value="en">🇬🇧 EN</option>
+            <option value="es">🇪🇸 ES</option>
+            <option value="fr">🇫🇷 FR</option>
+            <option value="de">🇩🇪 DE</option>
+            <option value="it">🇮🇹 IT</option>
+            <option value="pt">🇵🇹 PT</option>
+          </select>
+        </div>
       </div>
-      <h1>Welcome to Landa</h1>
-      <p>Let's personalize your moving journey step by step</p>
+      
+      <h1 class="trn" data-key="welcome_title">Welcome to Landa</h1>
+      <p class="trn" data-key="welcome_subtitle">Let's personalize your moving journey step by step</p>
     </header>
 
     <div class="content">
@@ -553,7 +642,7 @@
       <section class="step-section active" id="step-origin">
         <div class="step-label">
           <span class="step-number">1</span>
-          <span>Where are you moving from?</span>
+          <span class="trn" data-key="q1">Where are you moving from?</span>
         </div>
 
         <div class="field-wrap">
@@ -561,6 +650,8 @@
             <input 
               type="text" 
               id="input-origin" 
+              class="trn-ph"
+              data-key-ph="q1_placeholder"
               placeholder="Search origin country (e.g., 'IND' for India)" 
               autocomplete="off"
             />
@@ -573,13 +664,15 @@
       <section class="step-section" id="step-destination">
         <div class="step-label">
           <span class="step-number">2</span>
-          <span>Which city in the UK are you moving to?</span>
+          <span class="trn" data-key="q2">Which city in the UK are you moving to?</span>
         </div>
         <div class="field-wrap">
           <div class="autocomplete-wrapper">
             <input 
               type="text" 
               id="input-destination" 
+              class="trn-ph"
+              data-key-ph="q2_placeholder"
               placeholder="Type to search (e.g., 'lon' for London)" 
               autocomplete="off"
             />
@@ -592,7 +685,7 @@
       <section class="step-section" id="step-purpose">
         <div class="step-label">
           <span class="step-number">3</span>
-          <span>Is this move for work or education?</span>
+          <span class="trn" data-key="q3">Is this move for work or education?</span>
         </div>
         <div class="purpose-grid">
           <!-- Work Card -->
@@ -604,7 +697,7 @@
                 <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
               </svg>
             </div>
-            <span class="purpose-label">Work</span>
+            <span class="purpose-label trn" data-key="work">Work</span>
           </div>
 
           <!-- Education Card -->
@@ -616,7 +709,7 @@
                 <path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/>
               </svg>
             </div>
-            <span class="purpose-label">Education</span>
+            <span class="purpose-label trn" data-key="education">Education</span>
           </div>
         </div>
       </section>
@@ -625,367 +718,13 @@
       <section class="step-section" id="step-companions">
         <div class="step-label">
           <span class="step-number">4</span>
-          <span>Who are you moving with?</span>
+          <span class="trn" data-key="q4">Who are you moving with?</span>
         </div>
 
         <div class="companion-creator">
           <div class="creator-row">
             <select id="companion-role">
-              <option value="Spouse / Partner">Spouse / Partner</option>
-              <option value="Child">Child</option>
-              <option value="Parent">Parent</option>
-              <option value="Other Dependent">Other Dependent</option>
-            </select>
-            <input type="number" id="companion-age" placeholder="Age" min="0" max="110" />
-            <button type="button" class="btn-secondary" id="btn-add-companion">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-              Add
-            </button>
-          </div>
-
-          <div class="companion-list" id="companion-list">
-            <!-- Default Self entry -->
-            <div class="companion-item" data-role="Self">
-              <div class="companion-meta">
-                <span class="badge-role">👤 Primary Applicant (You)</span>
-              </div>
-              <span class="badge-age">Included</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Final Submit Button -->
-      <section class="step-section" id="step-submit">
-        <div class="submit-wrap">
-          <button type="button" class="btn-primary" id="btn-submit">
-            <span>Continue Your Journey</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-          </button>
-        </div>
-      </section>
-    </div>
-  </main>
-
-  <!-- Summary Modal upon submit -->
-  <div class="modal-overlay" id="summary-modal">
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-        </div>
-        <h2>Plan Initiated!</h2>
-        <p style="font-size:0.9rem; color:var(--text-muted);">
-          Your personalized Landa UK relocation roadmap is ready.
-        </p>
-      </div>
-
-      <div class="summary-card" id="summary-content">
-        <!-- Injected via JavaScript -->
-      </div>
-
-      <button type="button" class="btn-primary" id="btn-modal-close">Done</button>
-    </div>
-  </div>
-
-  <script>
-    // Relocation State
-    const relocationData = {
-      fromCountry: "",
-      toCity: "",
-      purpose: "",
-      companions: []
-    };
-
-    // Databases for Suggestions
-    const countryDataset = [
-      { name: "United States", code: "USA", flag: "🇺🇸" },
-      { name: "India", code: "IND", flag: "🇮🇳" },
-      { name: "Indonesia", code: "IDN", flag: "🇮🇩" },
-      { name: "Canada", code: "CAN", flag: "🇨🇦" },
-      { name: "Australia", code: "AUS", flag: "🇦🇺" },
-      { name: "Nigeria", code: "NGA", flag: "🇳🇬" },
-      { name: "South Africa", code: "ZAF", flag: "🇿🇦" },
-      { name: "Germany", code: "DEU", flag: "🇩🇪" },
-      { name: "France", code: "FRA", flag: "🇫🇷" },
-      { name: "Singapore", code: "SGP", flag: "🇸🇬" },
-      { name: "United Arab Emirates", code: "ARE", flag: "🇦🇪" }
-    ];
-
-    const ukCities = [
-      "London", "Manchester", "Birmingham", "Edinburgh", "Glasgow", 
-      "Bristol", "Leeds", "Cambridge", "Oxford", "Sheffield", 
-      "Newcastle", "Belfast", "Cardiff"
-    ];
-
-    // DOM Elements
-    const stepOrigin = document.getElementById("step-origin");
-    const stepDestination = document.getElementById("step-destination");
-    const stepPurpose = document.getElementById("step-purpose");
-    const stepCompanions = document.getElementById("step-companions");
-    const stepSubmit = document.getElementById("step-submit");
-
-    const inputOrigin = document.getElementById("input-origin");
-    const originSuggestionsList = document.getElementById("origin-suggestions-list");
-    
-    const inputDestination = document.getElementById("input-destination");
-    const destinationSuggestionsList = document.getElementById("destination-suggestions-list");
-    
-    const cardWork = document.getElementById("card-work");
-    const cardEducation = document.getElementById("card-education");
-
-    const companionRole = document.getElementById("companion-role");
-    const companionAge = document.getElementById("companion-age");
-    const btnAddCompanion = document.getElementById("btn-add-companion");
-    const companionList = document.getElementById("companion-list");
-
-    const btnSubmit = document.getElementById("btn-submit");
-    const summaryModal = document.getElementById("summary-modal");
-    const summaryContent = document.getElementById("summary-content");
-    const btnModalClose = document.getElementById("btn-modal-close");
-
-    // Helper: smooth reveal next section
-    function revealSection(element) {
-      if (!element.classList.contains("active")) {
-        element.classList.add("active");
-        setTimeout(() => {
-          element.scrollIntoView({ behavior: "smooth", block: "nearest" });
-        }, 150);
-      }
-    }
-
-    // --- AUTOCOMPLETE UTILITY FUNCTION ---
-    function setupAutocomplete(inputEl, suggestionsEl, dataset, filterFn, onSelectFn) {
-      let activeIndex = -1;
-
-      function render(query) {
-        suggestionsEl.innerHTML = "";
-        if (!query) {
-          suggestionsEl.classList.remove("visible");
-          return;
-        }
-
-        const filtered = dataset.filter(item => filterFn(item, query));
-
-        if (filtered.length === 0) {
-          suggestionsEl.classList.remove("visible");
-          return;
-        }
-
-        filtered.forEach((item, index) => {
-          const div = document.createElement("div");
-          div.className = "suggestion-item";
-          
-          // Render item with flag if it exists (for countries)
-          if (item.flag) {
-            div.innerHTML = `<span>${item.flag}</span> <span>${item.name}</span>`;
-          } else {
-            div.textContent = item;
-          }
-
-          div.addEventListener("click", () => {
-            select(item);
-          });
-          suggestionsEl.appendChild(div);
-        });
-
-        suggestionsEl.classList.add("visible");
-      }
-
-      function select(item) {
-        const displayVal = item.name ? `${item.flag} ${item.name}` : item;
-        inputEl.value = displayVal;
-        suggestionsEl.classList.remove("visible");
-        activeIndex = -1;
-        onSelectFn(item);
-      }
-
-      inputEl.addEventListener("input", (e) => {
-        const val = e.target.value.trim();
-        // Strip out existing flag emojis to make typing clean when refining
-        const cleanVal = val.replace(/[\uD83C-\uDBFF\uDC00-\uDFFF]+/g, '').trim();
-        render(cleanVal);
-      });
-
-      inputEl.addEventListener("keydown", (e) => {
-        const items = suggestionsEl.querySelectorAll(".suggestion-item");
-        if (!items.length) return;
-
-        if (e.key === "ArrowDown") {
-          e.preventDefault();
-          activeIndex = (activeIndex + 1) % items.length;
-          highlight(items);
-        } else if (e.key === "ArrowUp") {
-          e.preventDefault();
-          activeIndex = (activeIndex - 1 + items.length) % items.length;
-          highlight(items);
-        } else if (e.key === "Enter") {
-          e.preventDefault();
-          const filtered = dataset.filter(item => filterFn(item, inputEl.value.replace(/[\uD83C-\uDBFF\uDC00-\uDFFF]+/g, '').trim()));
-          if (activeIndex > -1) {
-            select(filtered[activeIndex]);
-          } else if (filtered.length > 0) {
-            select(filtered[0]);
-          }
-        } else if (e.key === "Escape") {
-          suggestionsEl.classList.remove("visible");
-        }
-      });
-
-      function highlight(items) {
-        items.forEach((item, idx) => {
-          if (idx === activeIndex) {
-            item.classList.add("highlighted");
-            item.scrollIntoView({ block: "nearest" });
-          } else {
-            item.classList.remove("highlighted");
-          }
-        });
-      }
-
-      // Close list on clicking outside
-      document.addEventListener("click", (e) => {
-        if (!e.target.closest(".autocomplete-wrapper")) {
-          suggestionsEl.classList.remove("visible");
-        }
-      });
-    }
-
-    // --- INSTANTIATE COUNTRY ORIGIN AUTOCOMPLETE (Step 1) ---
-    setupAutocomplete(
-      inputOrigin,
-      originSuggestionsList,
-      countryDataset,
-      (country, query) => {
-        const cleanQuery = query.toLowerCase();
-        return (
-          country.name.toLowerCase().startsWith(cleanQuery) ||
-          country.code.toLowerCase().startsWith(cleanQuery)
-        );
-      },
-      (selectedCountry) => {
-        relocationData.fromCountry = selectedCountry.name;
-        revealSection(stepDestination);
-      }
-    );
-
-    // --- INSTANTIATE CITY DESTINATION AUTOCOMPLETE (Step 2) ---
-    setupAutocomplete(
-      inputDestination,
-      destinationSuggestionsList,
-      ukCities,
-      (city, query) => {
-        return city.toLowerCase().startsWith(query.toLowerCase());
-      },
-      (selectedCity) => {
-        relocationData.toCity = selectedCity;
-        revealSection(stepPurpose);
-      }
-    );
-
-    // --- MOVE PURPOSE (Work / Education) ---
-    [cardWork, cardEducation].forEach((card) => {
-      card.addEventListener("click", () => {
-        cardWork.classList.remove("selected");
-        cardEducation.classList.remove("selected");
-
-        card.classList.add("selected");
-        relocationData.purpose = card.getAttribute("data-purpose");
-
-        revealSection(stepCompanions);
-        revealSection(stepSubmit);
-      });
-    });
-
-    // --- COMPANION MANAGEMENT ---
-    btnAddCompanion.addEventListener("click", () => {
-      const role = companionRole.value;
-      const age = companionAge.value.trim();
-
-      if (!age || isNaN(age) || age < 0 || age > 120) {
-        companionAge.focus();
-        companionAge.style.borderColor = "#ef4444";
-        setTimeout(() => (companionAge.style.borderColor = "var(--border-color)"), 1500);
-        return;
-      }
-
-      const companion = { id: Date.now(), role, age };
-      relocationData.companions.push(companion);
-
-      renderCompanion(companion);
-      companionAge.value = "";
-    });
-
-    function renderCompanion(person) {
-      const div = document.createElement("div");
-      div.className = "companion-item";
-      div.id = `companion-${person.id}`;
-      div.innerHTML = `
-        <div class="companion-meta">
-          <span class="badge-role">${escapeHtml(person.role)}</span>
-          <span class="badge-age">${escapeHtml(person.age)} yrs</span>
-        </div>
-        <button type="button" class="btn-remove" title="Remove" onclick="removeCompanion(${person.id})">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-      `;
-      companionList.appendChild(div);
-    }
-
-    window.removeCompanion = function(id) {
-      relocationData.companions = relocationData.companions.filter(c => c.id !== id);
-      const elem = document.getElementById(`companion-${id}`);
-      if (elem) elem.remove();
-    };
-
-    function escapeHtml(str) {
-      return String(str).replace(/[&<>"']/g, function(m) {
-        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
-      });
-    }
-
-    // --- SUBMISSION LOGIC ---
-    btnSubmit.addEventListener("click", () => {
-      const companionSummary = relocationData.companions.length > 0
-        ? relocationData.companions.map(c => `${c.role} (${c.age} yrs)`).join(", ")
-        : "Moving Solo";
-
-      summaryContent.innerHTML = `
-        <div class="summary-row">
-          <span class="summary-title">Departing From</span>
-          <span class="summary-value">${escapeHtml(relocationData.fromCountry || "Not specified")}</span>
-        </div>
-        <div class="summary-row">
-          <span class="summary-title">UK Destination</span>
-          <span class="summary-value">${escapeHtml(relocationData.toCity || "Not specified")}</span>
-        </div>
-        <div class="summary-row">
-          <span class="summary-title">Purpose</span>
-          <span class="summary-value">${escapeHtml(relocationData.purpose || "Not selected")}</span>
-        </div>
-        <div class="summary-row">
-          <span class="summary-title">Accompanying</span>
-          <span class="summary-value">${companionSummary}</span>
-        </div>
-      `;
-
-      summaryModal.classList.add("open");
-    });
-
-    btnModalClose.addEventListener("click", () => {
-      summaryModal.classList.remove("open");
-    });
-  </script>
-</body>
-</html>
+              <option value="Spouse / Partner" class="trn" data-key="spouse">Spouse / Partner</option>
+              <option value="Child" class="trn" data-key="child">Child</option>
+              <option value="Parent" class="trn" data-key="parent">Parent</option>
+              <option value="Other De
