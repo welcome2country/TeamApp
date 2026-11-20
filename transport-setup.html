@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Transport Setup — Landa UK Relocation</title>
+  <title>Flight Information — Landa UK Relocation</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -104,10 +104,10 @@
 <body class="bg-surface text-on-surface flex flex-col min-h-screen">
 <header class="fixed top-0 inset-x-0 z-40 bg-surface/85 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
   <div class="max-w-3xl mx-auto h-16 px-4 flex items-center gap-2">
-    <a href="journey.html" class="w-11 h-11 flex items-center justify-center text-on-surface rounded-full hover:bg-surface-variant/50 transition-colors" aria-label="Go back">
+    <a href="relocate.html" class="w-11 h-11 flex items-center justify-center text-on-surface rounded-full hover:bg-surface-variant/50 transition-colors" aria-label="Go back">
       <span class="material-symbols-outlined">arrow_back_ios_new</span>
     </a>
-    <h1 class="text-[18px] font-semibold text-on-surface">Task Details</h1>
+    <h1 class="text-[18px] font-semibold text-on-surface">Flight Information</h1>
   </div>
 </header>
 <main class="flex-grow w-full max-w-2xl mx-auto px-6 pt-24 pb-16 flex flex-col gap-5">
@@ -117,11 +117,28 @@
     </div>
     <div>
       <h2 class="text-[22px] font-semibold text-on-surface mb-1">Smooth landings ahead</h2>
-      <p class="text-[14px] text-on-surface-variant">Choose your preferred UK arrival airport, target date, and baggage or pet requirements to view matching routes.</p>
+      <p id="setup-subtitle" class="text-[14px] text-on-surface-variant">Choose your departure airport, UK arrival airport, and target date to preview indicative direct flight costs before your checklist.</p>
     </div>
   </div>
 
   <form onsubmit="handleFindTransport(event)" class="flex flex-col gap-5">
+    <div class="bg-surface-container-low rounded-[24px] p-5 shadow-sm">
+      <div class="flex items-center justify-between mb-3 gap-2">
+        <label for="departure-airport" class="text-[14px] font-semibold text-on-surface flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary text-[20px]">flight_takeoff</span>
+          <span>Departure Airport</span>
+        </label>
+        <span id="origin-country-badge" class="hidden bg-primary-fixed text-on-primary-fixed-variant text-[11px] px-2.5 py-0.5 rounded-full font-semibold"></span>
+      </div>
+      <div class="relative flex items-center bg-surface rounded-2xl px-4 py-3.5 focus-within:ring-2 focus-within:ring-primary">
+        <span class="material-symbols-outlined text-primary mr-2">flight</span>
+        <select id="departure-airport" onchange="handleDepartureChange(this.value)" class="w-full bg-transparent outline-none text-[14px] font-medium cursor-pointer appearance-none pr-6">
+          <option value="" disabled selected>Select departure airport...</option>
+        </select>
+        <span class="material-symbols-outlined text-on-surface-variant pointer-events-none">expand_more</span>
+      </div>
+    </div>
+
     <div class="bg-surface-container-low rounded-[24px] p-5 shadow-sm">
       <label class="text-[14px] font-semibold text-on-surface mb-3 flex items-center gap-2">
         <span class="material-symbols-outlined text-primary text-[20px]">connecting_airports</span>
@@ -146,37 +163,24 @@
       </div>
     </div>
 
-    <div class="bg-surface-container-low rounded-[24px] p-5 shadow-sm">
-      <div class="flex items-center justify-between mb-3">
+    <div class="bg-surface-container-low rounded-[24px] p-5 shadow-sm flex flex-col gap-3">
+      <div class="flex items-center justify-between">
         <label for="arrival-date" class="text-[14px] font-semibold text-on-surface flex items-center gap-2">
           <span class="material-symbols-outlined text-primary text-[20px]">event_available</span>
           <span>Target Arrival Date</span>
         </label>
         <span class="bg-tertiary-fixed text-on-tertiary-fixed-variant text-[11px] px-2.5 py-0.5 rounded-full font-semibold">Required</span>
       </div>
-      <input id="arrival-date" type="date" value="" class="w-full bg-surface text-on-surface p-4 rounded-2xl text-[15px] font-medium focus:outline-none focus:ring-2 focus:ring-primary" />
-      <p class="text-[12px] text-outline mt-2 flex items-center gap-1.5">
+      <input id="arrival-date" type="date" value="" onchange="handleDateChange(this.value)" oninput="handleDateChange(this.value)" class="w-full bg-surface text-on-surface p-4 rounded-2xl text-[15px] font-medium focus:outline-none focus:ring-2 focus:ring-primary" />
+      <p class="text-[12px] text-outline flex items-center gap-1.5">
         <span class="material-symbols-outlined text-[15px] text-tertiary-container">auto_awesome</span>
-        <span>Leave buffer days before your lease or start date if possible.</span>
+        <span>Leave buffer days before your lease or start date if possible. Changing this date refreshes your direct flight estimate automatically.</span>
       </p>
+
+      <div id="skyscanner-card" class="hidden bg-surface rounded-2xl p-4 shadow-[0_6px_20px_rgba(99,14,212,0.08)] flex flex-col gap-2.5 mt-1" aria-live="polite"></div>
     </div>
 
     <div class="bg-surface-container-low rounded-[24px] p-5 shadow-sm flex flex-col gap-4">
-      <label class="flex items-center justify-between cursor-pointer">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-surface-variant/60 text-secondary flex items-center justify-center">
-            <span class="material-symbols-outlined">luggage</span>
-          </div>
-          <div>
-            <span class="block text-[14px] font-semibold text-on-surface">Heavy Luggage / Extra Trunks</span>
-            <span class="text-[12px] text-outline">More than 3 large bags per person</span>
-          </div>
-        </div>
-        <input id="luggage-toggle" type="checkbox" class="w-5 h-5 accent-primary cursor-pointer" />
-      </label>
-
-      <div class="h-px bg-outline-variant/40 w-full"></div>
-
       <label class="flex items-center justify-between cursor-pointer">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-surface-variant/60 text-secondary flex items-center justify-center">
@@ -201,7 +205,7 @@
     <p id="setup-error" class="hidden text-[13px] font-medium text-error bg-error-container px-4 py-3 rounded-2xl"></p>
 
     <button type="submit" class="w-full py-4 px-6 rounded-full bg-gradient-to-r from-primary-container to-secondary-container text-on-primary font-semibold text-[15px] shadow-[0_10px_25px_rgba(124,58,237,0.3)] hover:opacity-95 transition-all flex items-center justify-center gap-2">
-      <span>Find transport options</span>
+      <span>Show me the checklist</span>
       <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
     </button>
   </form>
@@ -209,6 +213,7 @@
 <script>
 
   const LANDA_STORAGE_KEY = 'landa_uk_relocation_v1';
+  const DEPARTURE_AIRPORTS_BY_COUNTRY = {"United States":[{"code":"JFK","name":"John F. Kennedy International","city":"New York"},{"code":"EWR","name":"Newark Liberty International","city":"Newark / NYC"},{"code":"BOS","name":"Boston Logan International","city":"Boston"},{"code":"ORD","name":"Chicago O'Hare International","city":"Chicago"},{"code":"SFO","name":"San Francisco International","city":"San Francisco"},{"code":"LAX","name":"Los Angeles International","city":"Los Angeles"},{"code":"IAD","name":"Washington Dulles International","city":"Washington, D.C."},{"code":"ATL","name":"Hartsfield-Jackson Atlanta","city":"Atlanta"}],"Canada":[{"code":"YYZ","name":"Toronto Pearson International","city":"Toronto"},{"code":"YVR","name":"Vancouver International","city":"Vancouver"},{"code":"YUL","name":"Montréal-Trudeau International","city":"Montreal"},{"code":"YYC","name":"Calgary International","city":"Calgary"}],"Australia":[{"code":"SYD","name":"Sydney Kingsford Smith","city":"Sydney"},{"code":"MEL","name":"Melbourne Tullamarine","city":"Melbourne"},{"code":"BNE","name":"Brisbane Airport","city":"Brisbane"},{"code":"PER","name":"Perth Airport","city":"Perth"}],"Germany":[{"code":"FRA","name":"Frankfurt Airport","city":"Frankfurt"},{"code":"MUC","name":"Munich Airport","city":"Munich"},{"code":"BER","name":"Berlin Brandenburg","city":"Berlin"},{"code":"DUS","name":"Düsseldorf Airport","city":"Düsseldorf"}],"France":[{"code":"CDG","name":"Paris Charles de Gaulle","city":"Paris"},{"code":"ORY","name":"Paris Orly","city":"Paris"},{"code":"LYS","name":"Lyon-Saint Exupéry","city":"Lyon"},{"code":"NCE","name":"Nice Côte d’Azur","city":"Nice"}],"Singapore":[{"code":"SIN","name":"Singapore Changi Airport","city":"Singapore"}],"India":[{"code":"DEL","name":"Indira Gandhi International","city":"New Delhi"},{"code":"BOM","name":"Chhatrapati Shivaji Maharaj","city":"Mumbai"},{"code":"BLR","name":"Kempegowda International","city":"Bengaluru"},{"code":"MAA","name":"Chennai International","city":"Chennai"}],"Brazil":[{"code":"GRU","name":"São Paulo/Guarulhos","city":"São Paulo"},{"code":"GIG","name":"Rio de Janeiro/Galeão","city":"Rio de Janeiro"}],"Ireland":[{"code":"DUB","name":"Dublin Airport","city":"Dublin"},{"code":"ORK","name":"Cork Airport","city":"Cork"},{"code":"SNN","name":"Shannon Airport","city":"Shannon"}],"Japan":[{"code":"HND","name":"Tokyo Haneda Airport","city":"Tokyo"},{"code":"NRT","name":"Tokyo Narita International","city":"Tokyo"},{"code":"KIX","name":"Kansai International","city":"Osaka"}]};
   const EMPTY_STATE = {
     firstName: '',
     originCountry: '',
@@ -217,9 +222,12 @@
     household: null,
     familyMembers: [],
     onboardingCompleted: false,
+    departureAirport: '',
     arrivalAirport: '',
     arrivalDate: '',
-    heavyLuggage: false,
+    estimatedDirectFlightGbp: null,
+    estimatedFlightSource: '',
+    estimatedFlightCarrier: '',
     travelingWithPets: false,
     petPassportReady: false,
     selectedTransportId: null,
@@ -270,11 +278,139 @@
     return Math.ceil((t.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   }
 
+  function getArrivalAirportIata(arrivalAirport) {
+    if (!arrivalAirport) return 'LHR';
+    const lower = String(arrivalAirport).toLowerCase();
+    if (lower === 'heathrow') return 'LHR';
+    if (lower === 'gatwick') return 'LGW';
+    if (lower === 'manchester') return 'MAN';
+    if (/^[a-z]{3}$/.test(lower)) return lower.toUpperCase();
+    return 'LHR';
+  }
+
+  function getTravelerCount(state) {
+    if (state.household === 'couple') return 2;
+    if (state.household === 'family') return Math.max(1, 1 + ((state.familyMembers && state.familyMembers.length) || 0));
+    return 1;
+  }
+
+  function buildSkyscannerSearchUrl(dep, arr, dateStr) {
+    const d = (dep || '').trim().toLowerCase();
+    const a = getArrivalAirportIata(arr || 'Heathrow').toLowerCase();
+    const yymmdd = dateStr ? dateStr.replace(/-/g, '').slice(2, 8) : '';
+    if (/^[a-z]{3}$/.test(d) && /^[a-z]{3}$/.test(a) && /^\d{6}$/.test(yymmdd)) {
+      return 'https://www.skyscanner.net/transport/flights/' + d + '/' + a + '/' + yymmdd + '/?adults=1&preferdirects=true';
+    }
+    return 'https://www.skyscanner.net/flights';
+  }
+
+  const BASE_FARES = {
+    'United States': { baseGbp: 520, carrier: 'British Airways / Virgin Atlantic' },
+    'Canada': { baseGbp: 495, carrier: 'Air Canada / British Airways' },
+    'Australia': { baseGbp: 980, carrier: 'Qantas Direct' },
+    'Germany': { baseGbp: 145, carrier: 'Lufthansa / British Airways' },
+    'France': { baseGbp: 128, carrier: 'Air France / British Airways' },
+    'Singapore': { baseGbp: 790, carrier: 'Singapore Airlines Direct' },
+    'India': { baseGbp: 560, carrier: 'British Airways / Air India' },
+    'Brazil': { baseGbp: 695, carrier: 'British Airways / LATAM' },
+    'Ireland': { baseGbp: 78, carrier: 'Aer Lingus / British Airways' },
+    'Japan': { baseGbp: 845, carrier: 'JAL / British Airways' }
+  };
+
+  const AIRPORT_DELTAS = {
+    SFO:115, LAX:110, ORD:45, ATL:55, IAD:35, BOS:-15, JFK:0, EWR:-10,
+    YVR:95, YYC:65, YUL:20, YYZ:0, PER:70, BNE:40, MEL:25, SYD:0,
+    MUC:18, BER:12, DUS:-8, FRA:0, LYS:22, NCE:28, ORY:-6, CDG:0,
+    MAA:42, BLR:35, BOM:12, DEL:0, GIG:25, GRU:0, ORK:14, SNN:18, DUB:0,
+    KIX:45, NRT:15, HND:0, SIN:0
+  };
+
+  function computeIndicativeDirectFlight(originCountry, depIata, arrName, dateStr, travelers) {
+    const info = BASE_FARES[originCountry] || { baseGbp: 460, carrier: 'Skyscanner Direct Carrier' };
+    let fare = info.baseGbp + (AIRPORT_DELTAS[depIata] || 0);
+    const arrCode = getArrivalAirportIata(arrName);
+    if (arrCode === 'LGW') fare -= 24;
+    if (arrCode === 'MAN') fare += 18;
+    if (dateStr) {
+      const parsed = new Date(dateStr + 'T00:00:00');
+      if (!isNaN(parsed.getTime())) {
+        const m = parsed.getMonth();
+        const mult = [0.9, 0.88, 0.94, 1.04, 1.08, 1.24, 1.34, 1.32, 1.05, 0.96, 0.91, 1.28];
+        fare *= (mult[m] || 1);
+        const dow = parsed.getDay();
+        if (dow === 5 || dow === 6 || dow === 0) fare *= 1.09;
+        else if (dow === 2 || dow === 3) fare *= 0.94;
+        const daysOut = getDaysUntil(dateStr);
+        const dOut = daysOut === null ? 30 : daysOut;
+        if (dOut <= 7) fare *= 1.38;
+        else if (dOut <= 21) fare *= 1.18;
+        else if (dOut >= 90) fare *= 0.92;
+        const variance = ((parsed.getDate() * 13 + m * 7) % 23) - 11;
+        fare += variance;
+      }
+    }
+    const priceGbp = Math.max(45, Math.round(fare));
+    const safeT = Math.max(1, travelers || 1);
+    return { priceGbp, totalPriceGbp: priceGbp * safeT, carrierName: info.carrier, source: 'indicative_estimate' };
+  }
+
+  async function fetchSkyscannerEstimate(stateObj) {
+    const travelers = getTravelerCount(stateObj);
+    const arrCode = getArrivalAirportIata(stateObj.arrivalAirport || 'Heathrow');
+    try {
+      const res = await fetch('/api/skyscanner/indicative', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          originCountry: stateObj.originCountry || '',
+          departureIata: stateObj.departureAirport || '',
+          arrivalIata: arrCode,
+          arrivalDate: stateObj.arrivalDate,
+          travelers
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (typeof data.priceGbp === 'number') {
+          return {
+            priceGbp: data.priceGbp,
+            totalPriceGbp: data.priceGbp * travelers,
+            carrierName: data.carrierName || 'Direct Carrier',
+            source: data.source || 'indicative_estimate'
+          };
+        }
+      }
+    } catch {}
+    return computeIndicativeDirectFlight(stateObj.originCountry || '', stateObj.departureAirport || '', arrCode, stateObj.arrivalDate, travelers);
+  }
+
   let state = getLandaState();
   let selectedAirport = state.arrivalAirport || '';
+  let selectedDepartureAirport = state.departureAirport || '';
+
+  if (state.originCountry) {
+    document.getElementById('setup-subtitle').textContent = 'Choose your departure airport in ' + state.originCountry + ', UK arrival airport, and target date to preview indicative direct flight costs before your checklist.';
+    const badge = document.getElementById('origin-country-badge');
+    badge.textContent = state.originCountry;
+    badge.classList.remove('hidden');
+  }
+
+  function populateDepartureAirports() {
+    const sel = document.getElementById('departure-airport');
+    const list = state.originCountry ? (DEPARTURE_AIRPORTS_BY_COUNTRY[state.originCountry] || []) : [];
+    const prompt = state.originCountry ? 'Select departure airport in ' + state.originCountry + '...' : 'Select departure airport...';
+    let opts = '<option value="" disabled ' + (!selectedDepartureAirport ? 'selected' : '') + '>' + prompt + '</option>';
+    if (list.length > 0) {
+      opts += list.map(ap => '<option value="' + ap.code + '" ' + (selectedDepartureAirport === ap.code ? 'selected' : '') + '>' + ap.city + ' — ' + ap.name + ' (' + ap.code + ')</option>').join('');
+    } else {
+      Object.entries(DEPARTURE_AIRPORTS_BY_COUNTRY).forEach(([c, arr]) => {
+        opts += '<optgroup label="' + c + '">' + arr.map(ap => '<option value="' + ap.code + '" ' + (selectedDepartureAirport === ap.code ? 'selected' : '') + '>' + ap.city + ' — ' + ap.name + ' (' + ap.code + ')</option>').join('') + '</optgroup>';
+      });
+    }
+    sel.innerHTML = opts;
+  }
 
   if (state.arrivalDate) document.getElementById('arrival-date').value = state.arrivalDate;
-  document.getElementById('luggage-toggle').checked = !!state.heavyLuggage;
   document.getElementById('pets-toggle').checked = !!state.travelingWithPets;
   document.getElementById('pet-defra').checked = !!state.petPassportReady;
 
@@ -289,9 +425,65 @@
     });
   }
 
+  async function refreshEstimate() {
+    const dateVal = document.getElementById('arrival-date').value;
+    const card = document.getElementById('skyscanner-card');
+    if (!dateVal) {
+      card.classList.add('hidden');
+      return;
+    }
+    card.classList.remove('hidden');
+    const arrCode = selectedAirport ? getArrivalAirportIata(selectedAirport) : 'LHR';
+    card.innerHTML = '<div class="text-[13px] font-medium text-on-surface-variant">Fetching Skyscanner direct flight estimate...</div>';
+    state = { ...state, departureAirport: selectedDepartureAirport, arrivalAirport: selectedAirport, arrivalDate: dateVal };
+    const est = await fetchSkyscannerEstimate(state);
+    state.estimatedDirectFlightGbp = est.priceGbp;
+    state.estimatedFlightSource = est.source;
+    state.estimatedFlightCarrier = est.carrierName;
+    saveLandaState(state);
+
+    const travelers = getTravelerCount(state);
+    const total = est.priceGbp * travelers;
+    const url = buildSkyscannerSearchUrl(selectedDepartureAirport, selectedAirport || 'Heathrow', dateVal);
+    card.innerHTML = `
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-full bg-primary-fixed text-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[18px]">flight</span></span>
+          <div>
+            <span class="text-[12px] font-semibold text-on-surface block">Estimated Direct Flight Cost</span>
+            <span class="text-[11px] text-outline">${selectedDepartureAirport || state.originCountry || 'Origin'} → ${arrCode} · ${dateVal}</span>
+          </div>
+        </div>
+        <span class="px-2.5 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant text-[11px] font-semibold">${est.source === 'skyscanner_live' ? 'Skyscanner API · Live' : 'Skyscanner API · Indicative'}</span>
+      </div>
+      <div class="flex flex-wrap items-baseline justify-between gap-3 pt-1">
+        <div>
+          <div class="flex flex-wrap items-baseline gap-2">
+            <span class="text-[24px] font-bold text-primary tabular-nums">£${est.priceGbp}</span>
+            <span class="text-[12px] text-on-surface-variant">per traveler${travelers > 1 ? ' · £' + total + ' total (' + travelers + ' travelers)' : ''}</span>
+          </div>
+          <span class="text-[12px] text-outline block mt-0.5">Direct carrier: ${est.carrierName}</span>
+        </div>
+        <a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[12px] font-semibold text-primary hover:underline">
+          <span>Check on Skyscanner</span>
+          <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+        </a>
+      </div>`;
+  }
+
+  function handleDepartureChange(val) {
+    selectedDepartureAirport = val;
+    refreshEstimate();
+  }
+
   function pickAirport(name) {
     selectedAirport = name;
     renderAirports();
+    refreshEstimate();
+  }
+
+  function handleDateChange() {
+    refreshEstimate();
   }
 
   function togglePetsNote() {
@@ -299,33 +491,36 @@
     document.getElementById('pet-suboptions').classList.toggle('hidden', !on);
   }
 
+  populateDepartureAirports();
   renderAirports();
   togglePetsNote();
+  if (state.arrivalDate) refreshEstimate();
 
   function handleFindTransport(e) {
     e.preventDefault();
     const dateVal = document.getElementById('arrival-date').value;
     const err = document.getElementById('setup-error');
     const missing = [];
-    if (!selectedAirport) missing.push('arrival airport');
+    if (!selectedDepartureAirport) missing.push('departure airport');
+    if (!selectedAirport) missing.push('destination arrival airport');
     if (!dateVal) missing.push('target arrival date');
 
     if (missing.length > 0) {
-      err.textContent = 'Please select your ' + missing.join(' and ') + ' to continue.';
+      err.textContent = 'Please select your ' + missing.join(', ') + ' to continue.';
       err.classList.remove('hidden');
       return;
     }
     err.classList.add('hidden');
     state = {
       ...state,
+      departureAirport: selectedDepartureAirport,
       arrivalAirport: selectedAirport,
       arrivalDate: dateVal,
-      heavyLuggage: document.getElementById('luggage-toggle').checked,
       travelingWithPets: document.getElementById('pets-toggle').checked,
       petPassportReady: document.getElementById('pet-defra').checked
     };
     saveLandaState(state);
-    window.location.href = 'transport-options.html';
+    window.location.href = 'journey.html';
   }
 </script>
 </body>

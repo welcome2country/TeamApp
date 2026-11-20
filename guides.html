@@ -149,6 +149,7 @@
 <script>
 
   const LANDA_STORAGE_KEY = 'landa_uk_relocation_v1';
+  const DEPARTURE_AIRPORTS_BY_COUNTRY = {"United States":[{"code":"JFK","name":"John F. Kennedy International","city":"New York"},{"code":"EWR","name":"Newark Liberty International","city":"Newark / NYC"},{"code":"BOS","name":"Boston Logan International","city":"Boston"},{"code":"ORD","name":"Chicago O'Hare International","city":"Chicago"},{"code":"SFO","name":"San Francisco International","city":"San Francisco"},{"code":"LAX","name":"Los Angeles International","city":"Los Angeles"},{"code":"IAD","name":"Washington Dulles International","city":"Washington, D.C."},{"code":"ATL","name":"Hartsfield-Jackson Atlanta","city":"Atlanta"}],"Canada":[{"code":"YYZ","name":"Toronto Pearson International","city":"Toronto"},{"code":"YVR","name":"Vancouver International","city":"Vancouver"},{"code":"YUL","name":"Montréal-Trudeau International","city":"Montreal"},{"code":"YYC","name":"Calgary International","city":"Calgary"}],"Australia":[{"code":"SYD","name":"Sydney Kingsford Smith","city":"Sydney"},{"code":"MEL","name":"Melbourne Tullamarine","city":"Melbourne"},{"code":"BNE","name":"Brisbane Airport","city":"Brisbane"},{"code":"PER","name":"Perth Airport","city":"Perth"}],"Germany":[{"code":"FRA","name":"Frankfurt Airport","city":"Frankfurt"},{"code":"MUC","name":"Munich Airport","city":"Munich"},{"code":"BER","name":"Berlin Brandenburg","city":"Berlin"},{"code":"DUS","name":"Düsseldorf Airport","city":"Düsseldorf"}],"France":[{"code":"CDG","name":"Paris Charles de Gaulle","city":"Paris"},{"code":"ORY","name":"Paris Orly","city":"Paris"},{"code":"LYS","name":"Lyon-Saint Exupéry","city":"Lyon"},{"code":"NCE","name":"Nice Côte d’Azur","city":"Nice"}],"Singapore":[{"code":"SIN","name":"Singapore Changi Airport","city":"Singapore"}],"India":[{"code":"DEL","name":"Indira Gandhi International","city":"New Delhi"},{"code":"BOM","name":"Chhatrapati Shivaji Maharaj","city":"Mumbai"},{"code":"BLR","name":"Kempegowda International","city":"Bengaluru"},{"code":"MAA","name":"Chennai International","city":"Chennai"}],"Brazil":[{"code":"GRU","name":"São Paulo/Guarulhos","city":"São Paulo"},{"code":"GIG","name":"Rio de Janeiro/Galeão","city":"Rio de Janeiro"}],"Ireland":[{"code":"DUB","name":"Dublin Airport","city":"Dublin"},{"code":"ORK","name":"Cork Airport","city":"Cork"},{"code":"SNN","name":"Shannon Airport","city":"Shannon"}],"Japan":[{"code":"HND","name":"Tokyo Haneda Airport","city":"Tokyo"},{"code":"NRT","name":"Tokyo Narita International","city":"Tokyo"},{"code":"KIX","name":"Kansai International","city":"Osaka"}]};
   const EMPTY_STATE = {
     firstName: '',
     originCountry: '',
@@ -157,9 +158,12 @@
     household: null,
     familyMembers: [],
     onboardingCompleted: false,
+    departureAirport: '',
     arrivalAirport: '',
     arrivalDate: '',
-    heavyLuggage: false,
+    estimatedDirectFlightGbp: null,
+    estimatedFlightSource: '',
+    estimatedFlightCarrier: '',
     travelingWithPets: false,
     petPassportReady: false,
     selectedTransportId: null,
@@ -208,6 +212,112 @@
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     return Math.ceil((t.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  }
+
+  function getArrivalAirportIata(arrivalAirport) {
+    if (!arrivalAirport) return 'LHR';
+    const lower = String(arrivalAirport).toLowerCase();
+    if (lower === 'heathrow') return 'LHR';
+    if (lower === 'gatwick') return 'LGW';
+    if (lower === 'manchester') return 'MAN';
+    if (/^[a-z]{3}$/.test(lower)) return lower.toUpperCase();
+    return 'LHR';
+  }
+
+  function getTravelerCount(state) {
+    if (state.household === 'couple') return 2;
+    if (state.household === 'family') return Math.max(1, 1 + ((state.familyMembers && state.familyMembers.length) || 0));
+    return 1;
+  }
+
+  function buildSkyscannerSearchUrl(dep, arr, dateStr) {
+    const d = (dep || '').trim().toLowerCase();
+    const a = getArrivalAirportIata(arr || 'Heathrow').toLowerCase();
+    const yymmdd = dateStr ? dateStr.replace(/-/g, '').slice(2, 8) : '';
+    if (/^[a-z]{3}$/.test(d) && /^[a-z]{3}$/.test(a) && /^\d{6}$/.test(yymmdd)) {
+      return 'https://www.skyscanner.net/transport/flights/' + d + '/' + a + '/' + yymmdd + '/?adults=1&preferdirects=true';
+    }
+    return 'https://www.skyscanner.net/flights';
+  }
+
+  const BASE_FARES = {
+    'United States': { baseGbp: 520, carrier: 'British Airways / Virgin Atlantic' },
+    'Canada': { baseGbp: 495, carrier: 'Air Canada / British Airways' },
+    'Australia': { baseGbp: 980, carrier: 'Qantas Direct' },
+    'Germany': { baseGbp: 145, carrier: 'Lufthansa / British Airways' },
+    'France': { baseGbp: 128, carrier: 'Air France / British Airways' },
+    'Singapore': { baseGbp: 790, carrier: 'Singapore Airlines Direct' },
+    'India': { baseGbp: 560, carrier: 'British Airways / Air India' },
+    'Brazil': { baseGbp: 695, carrier: 'British Airways / LATAM' },
+    'Ireland': { baseGbp: 78, carrier: 'Aer Lingus / British Airways' },
+    'Japan': { baseGbp: 845, carrier: 'JAL / British Airways' }
+  };
+
+  const AIRPORT_DELTAS = {
+    SFO:115, LAX:110, ORD:45, ATL:55, IAD:35, BOS:-15, JFK:0, EWR:-10,
+    YVR:95, YYC:65, YUL:20, YYZ:0, PER:70, BNE:40, MEL:25, SYD:0,
+    MUC:18, BER:12, DUS:-8, FRA:0, LYS:22, NCE:28, ORY:-6, CDG:0,
+    MAA:42, BLR:35, BOM:12, DEL:0, GIG:25, GRU:0, ORK:14, SNN:18, DUB:0,
+    KIX:45, NRT:15, HND:0, SIN:0
+  };
+
+  function computeIndicativeDirectFlight(originCountry, depIata, arrName, dateStr, travelers) {
+    const info = BASE_FARES[originCountry] || { baseGbp: 460, carrier: 'Skyscanner Direct Carrier' };
+    let fare = info.baseGbp + (AIRPORT_DELTAS[depIata] || 0);
+    const arrCode = getArrivalAirportIata(arrName);
+    if (arrCode === 'LGW') fare -= 24;
+    if (arrCode === 'MAN') fare += 18;
+    if (dateStr) {
+      const parsed = new Date(dateStr + 'T00:00:00');
+      if (!isNaN(parsed.getTime())) {
+        const m = parsed.getMonth();
+        const mult = [0.9, 0.88, 0.94, 1.04, 1.08, 1.24, 1.34, 1.32, 1.05, 0.96, 0.91, 1.28];
+        fare *= (mult[m] || 1);
+        const dow = parsed.getDay();
+        if (dow === 5 || dow === 6 || dow === 0) fare *= 1.09;
+        else if (dow === 2 || dow === 3) fare *= 0.94;
+        const daysOut = getDaysUntil(dateStr);
+        const dOut = daysOut === null ? 30 : daysOut;
+        if (dOut <= 7) fare *= 1.38;
+        else if (dOut <= 21) fare *= 1.18;
+        else if (dOut >= 90) fare *= 0.92;
+        const variance = ((parsed.getDate() * 13 + m * 7) % 23) - 11;
+        fare += variance;
+      }
+    }
+    const priceGbp = Math.max(45, Math.round(fare));
+    const safeT = Math.max(1, travelers || 1);
+    return { priceGbp, totalPriceGbp: priceGbp * safeT, carrierName: info.carrier, source: 'indicative_estimate' };
+  }
+
+  async function fetchSkyscannerEstimate(stateObj) {
+    const travelers = getTravelerCount(stateObj);
+    const arrCode = getArrivalAirportIata(stateObj.arrivalAirport || 'Heathrow');
+    try {
+      const res = await fetch('/api/skyscanner/indicative', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          originCountry: stateObj.originCountry || '',
+          departureIata: stateObj.departureAirport || '',
+          arrivalIata: arrCode,
+          arrivalDate: stateObj.arrivalDate,
+          travelers
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (typeof data.priceGbp === 'number') {
+          return {
+            priceGbp: data.priceGbp,
+            totalPriceGbp: data.priceGbp * travelers,
+            carrierName: data.carrierName || 'Direct Carrier',
+            source: data.source || 'indicative_estimate'
+          };
+        }
+      }
+    } catch {}
+    return computeIndicativeDirectFlight(stateObj.originCountry || '', stateObj.departureAirport || '', arrCode, stateObj.arrivalDate, travelers);
   }
 
   const GUIDES = [

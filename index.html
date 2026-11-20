@@ -109,6 +109,7 @@
 <script>
 
   const LANDA_STORAGE_KEY = 'landa_uk_relocation_v1';
+  const DEPARTURE_AIRPORTS_BY_COUNTRY = {"United States":[{"code":"JFK","name":"John F. Kennedy International","city":"New York"},{"code":"EWR","name":"Newark Liberty International","city":"Newark / NYC"},{"code":"BOS","name":"Boston Logan International","city":"Boston"},{"code":"ORD","name":"Chicago O'Hare International","city":"Chicago"},{"code":"SFO","name":"San Francisco International","city":"San Francisco"},{"code":"LAX","name":"Los Angeles International","city":"Los Angeles"},{"code":"IAD","name":"Washington Dulles International","city":"Washington, D.C."},{"code":"ATL","name":"Hartsfield-Jackson Atlanta","city":"Atlanta"}],"Canada":[{"code":"YYZ","name":"Toronto Pearson International","city":"Toronto"},{"code":"YVR","name":"Vancouver International","city":"Vancouver"},{"code":"YUL","name":"Montréal-Trudeau International","city":"Montreal"},{"code":"YYC","name":"Calgary International","city":"Calgary"}],"Australia":[{"code":"SYD","name":"Sydney Kingsford Smith","city":"Sydney"},{"code":"MEL","name":"Melbourne Tullamarine","city":"Melbourne"},{"code":"BNE","name":"Brisbane Airport","city":"Brisbane"},{"code":"PER","name":"Perth Airport","city":"Perth"}],"Germany":[{"code":"FRA","name":"Frankfurt Airport","city":"Frankfurt"},{"code":"MUC","name":"Munich Airport","city":"Munich"},{"code":"BER","name":"Berlin Brandenburg","city":"Berlin"},{"code":"DUS","name":"Düsseldorf Airport","city":"Düsseldorf"}],"France":[{"code":"CDG","name":"Paris Charles de Gaulle","city":"Paris"},{"code":"ORY","name":"Paris Orly","city":"Paris"},{"code":"LYS","name":"Lyon-Saint Exupéry","city":"Lyon"},{"code":"NCE","name":"Nice Côte d’Azur","city":"Nice"}],"Singapore":[{"code":"SIN","name":"Singapore Changi Airport","city":"Singapore"}],"India":[{"code":"DEL","name":"Indira Gandhi International","city":"New Delhi"},{"code":"BOM","name":"Chhatrapati Shivaji Maharaj","city":"Mumbai"},{"code":"BLR","name":"Kempegowda International","city":"Bengaluru"},{"code":"MAA","name":"Chennai International","city":"Chennai"}],"Brazil":[{"code":"GRU","name":"São Paulo/Guarulhos","city":"São Paulo"},{"code":"GIG","name":"Rio de Janeiro/Galeão","city":"Rio de Janeiro"}],"Ireland":[{"code":"DUB","name":"Dublin Airport","city":"Dublin"},{"code":"ORK","name":"Cork Airport","city":"Cork"},{"code":"SNN","name":"Shannon Airport","city":"Shannon"}],"Japan":[{"code":"HND","name":"Tokyo Haneda Airport","city":"Tokyo"},{"code":"NRT","name":"Tokyo Narita International","city":"Tokyo"},{"code":"KIX","name":"Kansai International","city":"Osaka"}]};
   const EMPTY_STATE = {
     firstName: '',
     originCountry: '',
@@ -117,9 +118,12 @@
     household: null,
     familyMembers: [],
     onboardingCompleted: false,
+    departureAirport: '',
     arrivalAirport: '',
     arrivalDate: '',
-    heavyLuggage: false,
+    estimatedDirectFlightGbp: null,
+    estimatedFlightSource: '',
+    estimatedFlightCarrier: '',
     travelingWithPets: false,
     petPassportReady: false,
     selectedTransportId: null,
@@ -170,9 +174,114 @@
     return Math.ceil((t.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   }
 
+  function getArrivalAirportIata(arrivalAirport) {
+    if (!arrivalAirport) return 'LHR';
+    const lower = String(arrivalAirport).toLowerCase();
+    if (lower === 'heathrow') return 'LHR';
+    if (lower === 'gatwick') return 'LGW';
+    if (lower === 'manchester') return 'MAN';
+    if (/^[a-z]{3}$/.test(lower)) return lower.toUpperCase();
+    return 'LHR';
+  }
+
+  function getTravelerCount(state) {
+    if (state.household === 'couple') return 2;
+    if (state.household === 'family') return Math.max(1, 1 + ((state.familyMembers && state.familyMembers.length) || 0));
+    return 1;
+  }
+
+  function buildSkyscannerSearchUrl(dep, arr, dateStr) {
+    const d = (dep || '').trim().toLowerCase();
+    const a = getArrivalAirportIata(arr || 'Heathrow').toLowerCase();
+    const yymmdd = dateStr ? dateStr.replace(/-/g, '').slice(2, 8) : '';
+    if (/^[a-z]{3}$/.test(d) && /^[a-z]{3}$/.test(a) && /^\d{6}$/.test(yymmdd)) {
+      return 'https://www.skyscanner.net/transport/flights/' + d + '/' + a + '/' + yymmdd + '/?adults=1&preferdirects=true';
+    }
+    return 'https://www.skyscanner.net/flights';
+  }
+
+  const BASE_FARES = {
+    'United States': { baseGbp: 520, carrier: 'British Airways / Virgin Atlantic' },
+    'Canada': { baseGbp: 495, carrier: 'Air Canada / British Airways' },
+    'Australia': { baseGbp: 980, carrier: 'Qantas Direct' },
+    'Germany': { baseGbp: 145, carrier: 'Lufthansa / British Airways' },
+    'France': { baseGbp: 128, carrier: 'Air France / British Airways' },
+    'Singapore': { baseGbp: 790, carrier: 'Singapore Airlines Direct' },
+    'India': { baseGbp: 560, carrier: 'British Airways / Air India' },
+    'Brazil': { baseGbp: 695, carrier: 'British Airways / LATAM' },
+    'Ireland': { baseGbp: 78, carrier: 'Aer Lingus / British Airways' },
+    'Japan': { baseGbp: 845, carrier: 'JAL / British Airways' }
+  };
+
+  const AIRPORT_DELTAS = {
+    SFO:115, LAX:110, ORD:45, ATL:55, IAD:35, BOS:-15, JFK:0, EWR:-10,
+    YVR:95, YYC:65, YUL:20, YYZ:0, PER:70, BNE:40, MEL:25, SYD:0,
+    MUC:18, BER:12, DUS:-8, FRA:0, LYS:22, NCE:28, ORY:-6, CDG:0,
+    MAA:42, BLR:35, BOM:12, DEL:0, GIG:25, GRU:0, ORK:14, SNN:18, DUB:0,
+    KIX:45, NRT:15, HND:0, SIN:0
+  };
+
+  function computeIndicativeDirectFlight(originCountry, depIata, arrName, dateStr, travelers) {
+    const info = BASE_FARES[originCountry] || { baseGbp: 460, carrier: 'Skyscanner Direct Carrier' };
+    let fare = info.baseGbp + (AIRPORT_DELTAS[depIata] || 0);
+    const arrCode = getArrivalAirportIata(arrName);
+    if (arrCode === 'LGW') fare -= 24;
+    if (arrCode === 'MAN') fare += 18;
+    if (dateStr) {
+      const parsed = new Date(dateStr + 'T00:00:00');
+      if (!isNaN(parsed.getTime())) {
+        const m = parsed.getMonth();
+        const mult = [0.9, 0.88, 0.94, 1.04, 1.08, 1.24, 1.34, 1.32, 1.05, 0.96, 0.91, 1.28];
+        fare *= (mult[m] || 1);
+        const dow = parsed.getDay();
+        if (dow === 5 || dow === 6 || dow === 0) fare *= 1.09;
+        else if (dow === 2 || dow === 3) fare *= 0.94;
+        const daysOut = getDaysUntil(dateStr);
+        const dOut = daysOut === null ? 30 : daysOut;
+        if (dOut <= 7) fare *= 1.38;
+        else if (dOut <= 21) fare *= 1.18;
+        else if (dOut >= 90) fare *= 0.92;
+        const variance = ((parsed.getDate() * 13 + m * 7) % 23) - 11;
+        fare += variance;
+      }
+    }
+    const priceGbp = Math.max(45, Math.round(fare));
+    const safeT = Math.max(1, travelers || 1);
+    return { priceGbp, totalPriceGbp: priceGbp * safeT, carrierName: info.carrier, source: 'indicative_estimate' };
+  }
+
+  async function fetchSkyscannerEstimate(stateObj) {
+    const travelers = getTravelerCount(stateObj);
+    const arrCode = getArrivalAirportIata(stateObj.arrivalAirport || 'Heathrow');
+    try {
+      const res = await fetch('/api/skyscanner/indicative', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          originCountry: stateObj.originCountry || '',
+          departureIata: stateObj.departureAirport || '',
+          arrivalIata: arrCode,
+          arrivalDate: stateObj.arrivalDate,
+          travelers
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (typeof data.priceGbp === 'number') {
+          return {
+            priceGbp: data.priceGbp,
+            totalPriceGbp: data.priceGbp * travelers,
+            carrierName: data.carrierName || 'Direct Carrier',
+            source: data.source || 'indicative_estimate'
+          };
+        }
+      }
+    } catch {}
+    return computeIndicativeDirectFlight(stateObj.originCountry || '', stateObj.departureAirport || '', arrCode, stateObj.arrivalDate, travelers);
+  }
+
   let currentScreen = 'relocate';
   let expandedChapter = 1;
-  let transportFilter = 'all';
   let formError = '';
 
   const CHAPTERS = [
@@ -231,11 +340,11 @@
 
   function renderHeader(state) {
     const pct = getProgressPercent(state);
-    const isStack = ['transport-setup', 'transport-options', 'transport-confirmed'].includes(currentScreen);
+    const isStack = ['transport-setup', 'transport-confirmed'].includes(currentScreen);
     const headerEl = document.getElementById('main-header');
     if (isStack) {
-      const backTarget = currentScreen === 'transport-options' ? 'transport-setup' : 'journey';
-      const stackTitle = currentScreen === 'transport-options' ? 'Transport Options' : 'Task Details';
+      const backTarget = currentScreen === 'transport-setup' ? 'relocate' : 'journey';
+      const stackTitle = currentScreen === 'transport-setup' ? 'Flight Information' : 'Task Details';
       headerEl.innerHTML = `
         <div class="max-w-3xl mx-auto h-16 px-4 flex items-center gap-2">
           <button type="button" onclick="go('${backTarget}')" class="w-11 h-11 flex items-center justify-center text-on-surface rounded-full hover:bg-surface-variant/50 transition-colors" aria-label="Go back">
@@ -266,7 +375,7 @@
 
   function renderNav() {
     const navEl = document.getElementById('bottom-nav');
-    const isStack = ['transport-setup', 'transport-options', 'transport-confirmed'].includes(currentScreen);
+    const isStack = ['transport-setup', 'transport-confirmed'].includes(currentScreen);
     navEl.classList.toggle('hidden', isStack);
     const activeTab = currentScreen === 'touchdown' ? 'journey' : currentScreen;
     const tabs = [
@@ -356,26 +465,87 @@
     }
     saveLandaState({ ...s, onboardingCompleted: true });
     expandedChapter = 1;
-    go('journey');
+    go('transport-setup');
+  }
+
+  let spaLookupCounter = 0;
+  async function refreshSpaEstimate() {
+    const s = getLandaState();
+    const card = document.getElementById('spa-skyscanner-card');
+    if (!card) return;
+    if (!s.arrivalDate) {
+      card.classList.add('hidden');
+      return;
+    }
+    const token = ++spaLookupCounter;
+    const arrCode = s.arrivalAirport ? getArrivalAirportIata(s.arrivalAirport) : 'LHR';
+    card.classList.remove('hidden');
+    card.innerHTML = '<div class="text-[13px] font-medium text-on-surface-variant">Fetching Skyscanner direct flight estimate...</div>';
+    const est = await fetchSkyscannerEstimate(s);
+    if (token !== spaLookupCounter) return;
+    const latest = getLandaState();
+    latest.estimatedDirectFlightGbp = est.priceGbp;
+    latest.estimatedFlightSource = est.source;
+    latest.estimatedFlightCarrier = est.carrierName;
+    saveLandaState(latest);
+    const liveCard = document.getElementById('spa-skyscanner-card');
+    if (!liveCard) return;
+    const travelers = getTravelerCount(latest);
+    const total = est.priceGbp * travelers;
+    const url = buildSkyscannerSearchUrl(latest.departureAirport, latest.arrivalAirport || 'Heathrow', latest.arrivalDate);
+    liveCard.innerHTML = `
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-full bg-primary-fixed text-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[18px]">flight</span></span>
+          <div>
+            <span class="text-[12px] font-semibold text-on-surface block">Estimated Direct Flight Cost</span>
+            <span class="text-[11px] text-outline">${latest.departureAirport || latest.originCountry || 'Origin'} → ${arrCode} · ${latest.arrivalDate}</span>
+          </div>
+        </div>
+        <span class="px-2.5 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant text-[11px] font-semibold">${est.source === 'skyscanner_live' ? 'Skyscanner API · Live' : 'Skyscanner API · Indicative'}</span>
+      </div>
+      <div class="flex flex-wrap items-baseline justify-between gap-3 pt-1">
+        <div>
+          <div class="flex flex-wrap items-baseline gap-2">
+            <span class="text-[24px] font-bold text-primary tabular-nums">£${est.priceGbp}</span>
+            <span class="text-[12px] text-on-surface-variant">per traveler${travelers > 1 ? ' · £' + total + ' total (' + travelers + ' travelers)' : ''}</span>
+          </div>
+          <span class="text-[12px] text-outline block mt-0.5">Direct carrier: ${est.carrierName}</span>
+        </div>
+        <a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[12px] font-semibold text-primary hover:underline">
+          <span>Check on Skyscanner</span>
+          <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+        </a>
+      </div>`;
   }
 
   function submitTransportSetup(e) {
     e.preventDefault();
     const s = getLandaState();
     const missing = [];
-    if (!s.arrivalAirport) missing.push('arrival airport');
+    if (!s.departureAirport) missing.push('departure airport');
+    if (!s.arrivalAirport) missing.push('destination arrival airport');
     if (!s.arrivalDate) missing.push('target arrival date');
     if (missing.length) {
-      formError = 'Please select your ' + missing.join(' and ') + ' to continue.';
+      formError = 'Please select your ' + missing.join(', ') + ' to continue.';
       renderApp();
       return;
     }
-    go('transport-options');
+    go('journey');
   }
 
-  function selectTransportOption(id) {
+  function confirmSpaChapter1() {
     const s = getLandaState();
-    s.selectedTransportId = id;
+    if (s.selectedTransportId) {
+      expandedChapter = 2;
+      go('transport-confirmed');
+      return;
+    }
+    if (!s.departureAirport || !s.arrivalAirport || !s.arrivalDate) {
+      go('transport-setup');
+      return;
+    }
+    s.selectedTransportId = 'shortest';
     s.transportConfirmedAt = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     s.completedTasks['c1-flight'] = true;
     s.completedTasks['c1-luggage'] = true;
@@ -417,7 +587,7 @@
                   <label class="text-[12px] font-medium text-on-surface-variant">Moving from</label>
                   <div class="relative flex items-center bg-surface-container-low rounded-2xl px-4 py-3">
                     <span class="material-symbols-outlined text-primary mr-2">public</span>
-                    <select onchange="updateDraft({originCountry:this.value})" class="w-full bg-transparent outline-none text-[14px] font-medium cursor-pointer appearance-none">
+                    <select onchange="updateDraft(this.value !== getLandaState().originCountry ? {originCountry:this.value,departureAirport:'',estimatedDirectFlightGbp:null,estimatedFlightSource:'',estimatedFlightCarrier:''} : {originCountry:this.value})" class="w-full bg-transparent outline-none text-[14px] font-medium cursor-pointer appearance-none">
                       <option value="" disabled ${!s.originCountry ? 'selected' : ''}>Select origin country...</option>
                       ${['United States','Canada','Australia','Germany','France','Singapore','India','Brazil','Ireland','Japan'].map(c => '<option value="' + c + '" ' + (s.originCountry === c ? 'selected' : '') + '>' + c + '</option>').join('')}
                     </select>
@@ -558,6 +728,12 @@
               <div class="flex flex-wrap items-center gap-3 text-[22px] font-semibold text-white">
                 <span>${s.originCountry}</span><span class="material-symbols-outlined text-[20px]">flight_takeoff</span><span>${s.destinationCity}</span>
               </div>
+              ${(s.departureAirport || s.arrivalAirport || s.estimatedDirectFlightGbp !== null) ? `
+                <div class="flex flex-wrap items-center gap-2 text-[12px] text-on-primary-container">
+                  ${(s.departureAirport || s.arrivalAirport) ? '<span class="bg-white/15 px-3 py-1 rounded-full font-medium">' + (s.departureAirport || 'Origin') + ' → ' + (s.arrivalAirport || 'UK') + '</span>' : ''}
+                  ${s.estimatedDirectFlightGbp !== null && s.estimatedDirectFlightGbp !== undefined ? '<span class="bg-white/15 px-3 py-1 rounded-full font-semibold tabular-nums">Skyscanner Est. £' + s.estimatedDirectFlightGbp + ' direct</span>' : ''}
+                </div>
+              ` : ''}
               <div class="space-y-1.5 pt-1">
                 <div class="flex justify-between text-[12px] text-on-primary-container font-medium"><span>Relocation Progress</span><span class="tabular-nums">${pct}% Completed</span></div>
                 <div class="w-full bg-black/20 rounded-full h-2.5 overflow-hidden"><div class="bg-gradient-to-r from-secondary-fixed-dim to-tertiary-fixed h-full rounded-full" style="width:${pct}%"></div></div>
@@ -598,7 +774,12 @@
                     </button>`;
                   }).join('')}
                 </div>
-                ${ch.number === 1 ? `<button type="button" onclick="go('${ch1Done ? 'transport-confirmed' : 'transport-setup'}')" class="w-full py-3.5 px-5 rounded-full bg-primary text-on-primary font-semibold text-[14px] flex items-center justify-center gap-2"><span>${ch1Done ? 'View Confirmed Transport' : 'Continue Chapter Tasks'}</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span></button>` : ''}
+                ${ch.number === 1 ? `
+                  <div class="flex flex-col sm:flex-row gap-2.5">
+                    <button type="button" onclick="confirmSpaChapter1()" class="flex-1 py-3.5 px-5 rounded-full bg-primary text-on-primary font-semibold text-[14px] flex items-center justify-center gap-2"><span>${ch1Done ? 'View Confirmed Transport' : 'Continue Chapter Tasks'}</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span></button>
+                    <button type="button" onclick="go('transport-setup')" class="py-3.5 px-5 rounded-full bg-surface-container text-on-surface font-semibold text-[13px] hover:bg-surface-container-high transition-colors">Edit Flight Info</button>
+                  </div>
+                ` : ''}
               </div>
             </div>`;
           }).join('')}
@@ -636,11 +817,30 @@
     }
 
     if (currentScreen === 'transport-setup') {
+      const countryAirports = s.originCountry ? (DEPARTURE_AIRPORTS_BY_COUNTRY[s.originCountry] || []) : [];
+      const depPrompt = s.originCountry ? 'Select departure airport in ' + s.originCountry + '...' : 'Select departure airport...';
+      const depOpts = countryAirports.length > 0
+        ? countryAirports.map(ap => '<option value="' + ap.code + '" ' + (s.departureAirport === ap.code ? 'selected' : '') + '>' + ap.city + ' — ' + ap.name + ' (' + ap.code + ')</option>').join('')
+        : Object.entries(DEPARTURE_AIRPORTS_BY_COUNTRY).map(([c, arr]) => '<optgroup label="' + c + '">' + arr.map(ap => '<option value="' + ap.code + '" ' + (s.departureAirport === ap.code ? 'selected' : '') + '>' + ap.city + ' — ' + ap.name + ' (' + ap.code + ')</option>').join('') + '</optgroup>').join('');
       root.innerHTML = `
         <form onsubmit="submitTransportSetup(event)" class="max-w-2xl mx-auto flex flex-col gap-5">
           <div class="bg-surface-container-low rounded-[24px] p-5 flex items-start gap-4">
             <div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0"><span class="material-symbols-outlined">flight_takeoff</span></div>
-            <div><h2 class="text-[22px] font-semibold mb-1">Smooth landings ahead</h2><p class="text-[14px] text-on-surface-variant">Choose your preferred UK arrival airport, target date, and baggage or pet requirements.</p></div>
+            <div><h2 class="text-[22px] font-semibold mb-1">Smooth landings ahead</h2><p class="text-[14px] text-on-surface-variant">Choose your departure airport${s.originCountry ? ' in ' + s.originCountry : ''}, UK arrival airport, and target date to preview indicative direct flight costs before your checklist.</p></div>
+          </div>
+          <div class="bg-surface-container-low rounded-[24px] p-5">
+            <div class="flex items-center justify-between mb-3 gap-2">
+              <label class="text-[14px] font-semibold flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[20px]">flight_takeoff</span><span>Departure Airport</span></label>
+              ${s.originCountry ? '<span class="bg-primary-fixed text-on-primary-fixed-variant text-[11px] px-2.5 py-0.5 rounded-full font-semibold">' + s.originCountry + '</span>' : ''}
+            </div>
+            <div class="relative flex items-center bg-surface rounded-2xl px-4 py-3.5">
+              <span class="material-symbols-outlined text-primary mr-2">flight</span>
+              <select onchange="updateDraft({departureAirport:this.value})" class="w-full bg-transparent outline-none text-[14px] font-medium cursor-pointer appearance-none pr-6">
+                <option value="" disabled ${!s.departureAirport ? 'selected' : ''}>${depPrompt}</option>
+                ${depOpts}
+              </select>
+              <span class="material-symbols-outlined text-on-surface-variant pointer-events-none">expand_more</span>
+            </div>
           </div>
           <div class="bg-surface-container-low rounded-[24px] p-5">
             <label class="text-[14px] font-semibold mb-3 flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[20px]">connecting_airports</span><span>Destination Arrival Airport</span></label>
@@ -651,16 +851,13 @@
               }).join('')}
             </div>
           </div>
-          <div class="bg-surface-container-low rounded-[24px] p-5">
-            <div class="flex items-center justify-between mb-3"><label class="text-[14px] font-semibold flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[20px]">event_available</span><span>Target Arrival Date</span></label><span class="bg-tertiary-fixed text-on-tertiary-fixed-variant text-[11px] px-2.5 py-0.5 rounded-full font-semibold">Required</span></div>
+          <div class="bg-surface-container-low rounded-[24px] p-5 flex flex-col gap-3">
+            <div class="flex items-center justify-between"><label class="text-[14px] font-semibold flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[20px]">event_available</span><span>Target Arrival Date</span></label><span class="bg-tertiary-fixed text-on-tertiary-fixed-variant text-[11px] px-2.5 py-0.5 rounded-full font-semibold">Required</span></div>
             <input type="date" value="${s.arrivalDate || ''}" onchange="updateDraft({arrivalDate:this.value})" class="w-full bg-surface p-4 rounded-2xl text-[15px] font-medium" />
+            <p class="text-[12px] text-outline">Leave buffer days before your lease or start date if possible. Changing this date refreshes your direct flight estimate automatically.</p>
+            <div id="spa-skyscanner-card" class="hidden bg-surface rounded-2xl p-4 shadow-[0_6px_20px_rgba(99,14,212,0.08)] flex flex-col gap-2.5 mt-1" aria-live="polite"></div>
           </div>
           <div class="bg-surface-container-low rounded-[24px] p-5 flex flex-col gap-4">
-            <label class="flex items-center justify-between cursor-pointer">
-              <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-surface-variant/60 text-secondary flex items-center justify-center"><span class="material-symbols-outlined">luggage</span></div><div><span class="block text-[14px] font-semibold">Heavy Luggage / Extra Trunks</span><span class="text-[12px] text-outline">More than 3 large bags per person</span></div></div>
-              <input type="checkbox" ${s.heavyLuggage ? 'checked' : ''} onchange="updateDraft({heavyLuggage:this.checked})" class="w-5 h-5 accent-primary" />
-            </label>
-            <div class="h-px bg-outline-variant/40"></div>
             <label class="flex items-center justify-between cursor-pointer">
               <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-surface-variant/60 text-secondary flex items-center justify-center"><span class="material-symbols-outlined">pets</span></div><div><span class="block text-[14px] font-semibold">Traveling with Pets</span><span class="text-[12px] text-outline">Dogs, cats, or companion animals</span></div></div>
               <input type="checkbox" ${s.travelingWithPets ? 'checked' : ''} onchange="updateDraft({travelingWithPets:this.checked})" class="w-5 h-5 accent-primary" />
@@ -668,45 +865,25 @@
             ${s.travelingWithPets ? '<label class="bg-surface p-3.5 rounded-2xl flex items-center justify-between"><span class="text-[13px] font-medium">Confirm pets meet DEFRA requirements</span><input type="checkbox" ' + (s.petPassportReady ? 'checked' : '') + ' onchange="updateDraft({petPassportReady:this.checked})" class="w-4 h-4 accent-primary" /></label>' : ''}
           </div>
           ${formError ? '<p class="text-[13px] font-medium text-error bg-error-container px-4 py-3 rounded-2xl">' + formError + '</p>' : ''}
-          <button type="submit" class="w-full py-4 px-6 rounded-full bg-gradient-to-r from-primary-container to-secondary-container text-on-primary font-semibold text-[15px] flex items-center justify-center gap-2"><span>Find transport options</span><span class="material-symbols-outlined text-[20px]">arrow_forward</span></button>
+          <button type="submit" class="w-full py-4 px-6 rounded-full bg-gradient-to-r from-primary-container to-secondary-container text-on-primary font-semibold text-[15px] flex items-center justify-center gap-2"><span>Show me the checklist</span><span class="material-symbols-outlined text-[20px]">arrow_forward</span></button>
         </form>`;
-      return;
-    }
-
-    if (currentScreen === 'transport-options') {
-      const filtered = TRANSPORT_OPTIONS.filter(o => transportFilter === 'all' || (transportFilter === 'low-carbon' && o.lowCarbon) || (transportFilter === 'express' && o.express));
-      root.innerHTML = `
-        <div class="max-w-3xl mx-auto flex flex-col gap-5">
-          <div class="text-[13px] text-on-surface-variant">${s.originCountry && s.arrivalAirport ? s.originCountry + ' → ' + s.arrivalAirport + (s.arrivalDate ? ' · ' + s.arrivalDate : '') : 'Configure your arrival airport and date in Transport Setup.'}</div>
-          <div class="flex items-center gap-2.5">
-            ${[['all','All Options (3)'],['low-carbon','Low Carbon'],['express','Express Only']].map(([k,l]) => '<button type="button" onclick="transportFilter=\'' + k + '\'; renderApp();" class="px-4 py-2 rounded-full text-[13px] font-medium ' + (transportFilter === k ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface') + '">' + l + '</button>').join('')}
-          </div>
-          ${filtered.map(o => `<div class="bg-surface-container-lowest rounded-[24px] p-5 shadow-[0_12px_32px_rgba(115,46,228,0.06)] flex flex-col gap-4">
-            <div class="flex items-start justify-between gap-3">
-              <div class="flex items-center gap-3"><div class="w-12 h-12 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center"><span class="material-symbols-outlined">${o.icon}</span></div><div><h3 class="text-[17px] font-semibold">${o.title}</h3><p class="text-[12px] text-outline">${o.sub}</p></div></div>
-              <span class="px-3 py-1 rounded-full text-[11px] font-semibold ${o.badgeClass}">${o.badge}</span>
-            </div>
-            <div class="grid grid-cols-3 gap-2 py-3 px-4 bg-surface-container-low rounded-2xl tabular-nums">
-              <div><span class="text-[11px] text-outline block">Duration</span><span class="text-[14px] font-semibold">${o.duration}</span></div>
-              <div><span class="text-[11px] text-outline block">Transfers</span><span class="text-[14px] font-semibold">${o.transfers}</span></div>
-              <div><span class="text-[11px] text-outline block">Carbon</span><span class="text-[14px] font-semibold text-tertiary-container">${o.carbon}</span></div>
-            </div>
-            <div class="flex items-center justify-between pt-1">
-              <div><span class="text-[12px] text-outline block">Total Price</span><span class="text-[22px] font-bold text-primary tabular-nums">${o.price}</span></div>
-              <button type="button" onclick="selectTransportOption('${o.id}')" class="bg-gradient-to-r from-primary-container to-secondary-container text-on-primary px-5 py-3 rounded-full text-[14px] font-semibold flex items-center gap-2"><span>Select and Save</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span></button>
-            </div>
-          </div>`).join('')}
-        </div>`;
+      if (s.arrivalDate) refreshSpaEstimate();
       return;
     }
 
     if (currentScreen === 'transport-confirmed') {
       const chosen = TRANSPORT_OPTIONS.find(o => o.id === s.selectedTransportId);
-      root.innerHTML = !chosen ? `
+      const hasFlightInfo = !!(s.departureAirport && s.arrivalAirport && s.arrivalDate);
+      const displayTitle = s.estimatedFlightCarrier || (chosen && chosen.title) || 'Direct Flight';
+      const displayPrice = (s.estimatedDirectFlightGbp !== null && s.estimatedDirectFlightGbp !== undefined)
+        ? s.estimatedDirectFlightGbp
+        : (chosen ? chosen.price.replace('£', '') : '0');
+      root.innerHTML = (!chosen && !hasFlightInfo) ? `
         <div class="max-w-xl mx-auto bg-surface-container-low rounded-[24px] p-6 text-center flex flex-col items-center gap-3">
           <span class="material-symbols-outlined text-[40px] text-primary">flight_takeoff</span>
-          <h2 class="text-[20px] font-semibold">No transport selected yet</h2>
-          <button type="button" onclick="go('transport-setup')" class="px-6 py-3 rounded-full bg-primary text-on-primary text-[14px] font-semibold">Go to Transport Setup</button>
+          <h2 class="text-[20px] font-semibold">No flight information saved yet</h2>
+          <p class="text-[14px] text-on-surface-variant max-w-sm">Choose your departure airport, UK arrival airport, and target date to unlock your confirmation card.</p>
+          <button type="button" onclick="go('transport-setup')" class="px-6 py-3 rounded-full bg-primary text-on-primary text-[14px] font-semibold">Go to Flight Information</button>
         </div>` : `
         <div class="max-w-2xl mx-auto flex flex-col gap-6">
           <div class="rounded-[24px] bg-gradient-to-r from-primary-container to-secondary-container p-6 text-white shadow-xl">
@@ -716,14 +893,14 @@
             </div>
           </div>
           <div class="rounded-[24px] bg-surface-container-lowest p-5 shadow-md flex flex-col gap-4">
-            <div class="flex items-center justify-between"><div><h3 class="text-[17px] font-semibold">${(s.originCountry || 'Origin') + ' to ' + (s.destinationCity || s.arrivalAirport || 'UK')}</h3><span class="text-[12px] text-outline">${chosen.title} · ${chosen.code}</span></div><span class="px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant text-[12px] font-semibold">Confirmed</span></div>
+            <div class="flex items-center justify-between"><div><h3 class="text-[17px] font-semibold">${(s.originCountry || 'Origin') + (s.departureAirport ? ' (' + s.departureAirport + ')' : '') + ' to ' + (s.destinationCity || s.arrivalAirport || 'UK')}</h3><span class="text-[12px] text-outline">${displayTitle}</span></div><span class="px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant text-[12px] font-semibold">Confirmed</span></div>
             <div class="grid grid-cols-2 gap-3 bg-surface-container-low p-4 rounded-2xl">
-              <div><span class="text-[12px] text-outline block">Target Date</span><span class="text-[16px] font-semibold">${s.arrivalDate || 'Scheduled'}</span></div>
-              <div><span class="text-[12px] text-outline block">Arrival Hub</span><span class="text-[16px] font-semibold">${s.arrivalAirport || 'UK'}</span></div>
+              <div><span class="text-[12px] text-outline block">Target Date</span><span class="text-[16px] font-semibold">${s.arrivalDate || 'Scheduled'}</span><span class="text-[12px] text-on-surface-variant block mt-0.5">Departure: ${s.departureAirport || 'Origin'}</span></div>
+              <div><span class="text-[12px] text-outline block">Arrival Hub</span><span class="text-[16px] font-semibold">${s.arrivalAirport || 'UK'}</span><span class="text-[12px] text-on-surface-variant block mt-0.5">Direct flight estimate</span></div>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-[12px] text-outline">Locked in at ${s.transportConfirmedAt || 'just now'}</span>
-              <span class="text-[20px] font-bold tabular-nums">${chosen.price}</span>
+              <div class="text-right"><span class="text-[12px] text-outline block">Indicative Direct Fare</span><span class="text-[20px] font-bold tabular-nums">£${displayPrice}</span></div>
             </div>
           </div>
           <div class="rounded-[24px] bg-surface-container-low p-5 flex flex-col gap-4">
@@ -761,8 +938,9 @@
               <p><strong>Purpose:</strong> ${s.purpose === 'work' ? 'Career & Work' : 'Study & Uni'}</p>
               <p><strong>Household:</strong> ${s.household || 'Not set'}</p>
               ${s.household === 'family' && (s.familyMembers || []).length > 0 ? '<p><strong>Family Members:</strong> ' + s.familyMembers.map(m => (m.relationship || 'Person') + ' (Age ' + (m.age || '—') + ')').join(', ') + '</p>' : ''}
-              <p><strong>Arrival Airport:</strong> ${s.arrivalAirport || 'Not set'}</p>
+              <p><strong>Airports:</strong> ${s.departureAirport || 'Departure not set'} → ${s.arrivalAirport || 'Arrival not set'}</p>
               <p><strong>Target Date:</strong> ${s.arrivalDate || 'Not set'}</p>
+              ${s.estimatedDirectFlightGbp !== null && s.estimatedDirectFlightGbp !== undefined ? '<p><strong>Skyscanner Direct Estimate:</strong> £' + s.estimatedDirectFlightGbp + ' per traveler' + (s.estimatedFlightCarrier ? ' · ' + s.estimatedFlightCarrier : '') + '</p>' : ''}
               <p><strong>Progress:</strong> ${getProgressPercent(s)}%</p>
             </div>
           `}
