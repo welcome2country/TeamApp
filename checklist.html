@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checklist — Landa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #fdf8f6 0%, #fce7f3 34%, #f3e8ff 68%, #ecfeff 100%);
+    background-attachment: fixed;
+    color: #071747;
+  }
+  .landa-glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 18px 45px -18px rgba(99, 14, 212, 0.12), 0 6px 20px -8px rgba(7, 23, 71, 0.06);
+  }
+  .landa-glass-subtle {
+    background: rgba(255, 255, 255, 0.68);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(204, 195, 216, 0.45);
+  }
+  .landa-gradient-btn {
+    background: linear-gradient(135deg, #7c3aed 0%, #db2777 100%);
+    box-shadow: 0 12px 26px -10px rgba(124, 58, 237, 0.55);
+  }
+  .landa-gradient-fill {
+    background: linear-gradient(90deg, #7c3aed 0%, #db2777 100%);
+  }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+</style>
+  </head>
+  <body class="antialiased">
+    <header class="sticky top-0 z-30 landa-glass border-b border-white/80">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-8">
+        <a href="index.html" class="text-xl font-bold tracking-tight text-[#071747] whitespace-nowrap shrink-0">Landa</a>
+        <nav class="hidden md:flex items-center gap-7">
+          <a href="index.html" class="whitespace-nowrap shrink-0 pb-1 text-sm font-medium transition-colors text-[#4a4455] hover:text-[#071747]">Overview</a>
+          <a href="neighborhoods.html" class="whitespace-nowrap shrink-0 pb-1 text-sm font-medium transition-colors text-[#4a4455] hover:text-[#071747]">Neighborhoods</a>
+          <a href="checklist.html" class="whitespace-nowrap shrink-0 pb-1 text-sm font-medium transition-colors text-[#630ed4] border-b-2 border-[#7c3aed]">Checklist</a>
+          <a href="move-setup.html" class="whitespace-nowrap shrink-0 pb-1 text-sm font-medium transition-colors text-[#4a4455] hover:text-[#071747]">Move Setup</a>
+        </nav>
+        <a href="checklist.html" class="landa-gradient-btn px-5 py-2 rounded-full text-xs sm:text-sm font-semibold text-white whitespace-nowrap shrink-0">
+          Open Checklist
+        </a>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      
+    <div class="space-y-8">
+      <section class="space-y-2 max-w-2xl">
+        <p class="text-sm font-medium text-[#630ed4]">Moving Checklist · Step-by-Step Timeline</p>
+        <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-[#071747]">Every relocation task in one calm space</h1>
+        <p class="text-sm sm:text-base text-[#4a4455]">Click any task below to toggle completion.</p>
+      </section>
+
+      <section class="landa-glass rounded-[28px] px-6 sm:px-8 py-2 divide-y divide-[#071747]/10">
+        
+          <button type="button" onclick="this.classList.toggle('is-done'); this.querySelector('.box').classList.toggle('landa-gradient-fill'); this.querySelector('.box').classList.toggle('text-white'); this.querySelector('.title').classList.toggle('line-through');" class="w-full py-5 flex items-center gap-4 text-left cursor-pointer is-done">
+            <span class="box w-6 h-6 rounded-lg border border-[#ccc3d8] flex items-center justify-center shrink-0 text-xs font-bold landa-gradient-fill text-white border-transparent">✓</span>
+            <div>
+              <div class="title text-sm sm:text-base font-medium text-[#071747] line-through opacity-60">Confirm Portuguese NIF tax number issuance</div>
+              <div class="text-xs text-[#4a4455] mt-1">Visas & Admin · Due Nov 24 · Essential</div>
+            </div>
+          </button>
+        
+          <button type="button" onclick="this.classList.toggle('is-done'); this.querySelector('.box').classList.toggle('landa-gradient-fill'); this.querySelector('.box').classList.toggle('text-white'); this.querySelector('.title').classList.toggle('line-through');" class="w-full py-5 flex items-center gap-4 text-left cursor-pointer ">
+            <span class="box w-6 h-6 rounded-lg border border-[#ccc3d8] flex items-center justify-center shrink-0 text-xs font-bold bg-white text-transparent">✓</span>
+            <div>
+              <div class="title text-sm sm:text-base font-medium text-[#071747] ">Tour sunlit 1BR apartment in Príncipe Real</div>
+              <div class="text-xs text-[#4a4455] mt-1">Housing · Due Nov 29 · Essential</div>
+            </div>
+          </button>
+        
+          <button type="button" onclick="this.classList.toggle('is-done'); this.querySelector('.box').classList.toggle('landa-gradient-fill'); this.querySelector('.box').classList.toggle('text-white'); this.querySelector('.title').classList.toggle('line-through');" class="w-full py-5 flex items-center gap-4 text-left cursor-pointer ">
+            <span class="box w-6 h-6 rounded-lg border border-[#ccc3d8] flex items-center justify-center shrink-0 text-xs font-bold bg-white text-transparent">✓</span>
+            <div>
+              <div class="title text-sm sm:text-base font-medium text-[#071747] ">Review standard 12-month lease deposit terms</div>
+              <div class="text-xs text-[#4a4455] mt-1">Housing · Due Dec 03 · Essential</div>
+            </div>
+          </button>
+        
+          <button type="button" onclick="this.classList.toggle('is-done'); this.querySelector('.box').classList.toggle('landa-gradient-fill'); this.querySelector('.box').classList.toggle('text-white'); this.querySelector('.title').classList.toggle('line-through');" class="w-full py-5 flex items-center gap-4 text-left cursor-pointer ">
+            <span class="box w-6 h-6 rounded-lg border border-[#ccc3d8] flex items-center justify-center shrink-0 text-xs font-bold bg-white text-transparent">✓</span>
+            <div>
+              <div class="title text-sm sm:text-base font-medium text-[#071747] ">Schedule 1Gbps fiber internet installation</div>
+              <div class="text-xs text-[#4a4455] mt-1">Utilities · Due Dec 12 · Essential</div>
+            </div>
+          </button>
+        
+          <button type="button" onclick="this.classList.toggle('is-done'); this.querySelector('.box').classList.toggle('landa-gradient-fill'); this.querySelector('.box').classList.toggle('text-white'); this.querySelector('.title').classList.toggle('line-through');" class="w-full py-5 flex items-center gap-4 text-left cursor-pointer ">
+            <span class="box w-6 h-6 rounded-lg border border-[#ccc3d8] flex items-center justify-center shrink-0 text-xs font-bold bg-white text-transparent">✓</span>
+            <div>
+              <div class="title text-sm sm:text-base font-medium text-[#071747] ">Book international courier for two studio boxes</div>
+              <div class="text-xs text-[#4a4455] mt-1">Settling In · Due Dec 21 · Recommended</div>
+            </div>
+          </button>
+        
+      </section>
+    </div>
+  
+    </main>
+
+    <footer class="max-w-6xl mx-auto px-4 sm:px-6 py-8 text-xs text-[#4a4455] flex flex-wrap items-center justify-between gap-4 border-t border-[#071747]/8">
+      <span>Landa · Relocation Planner</span>
+      <div class="flex items-center gap-4">
+        <a href="index.html" class="hover:text-[#071747]">Overview</a>
+        <a href="neighborhoods.html" class="hover:text-[#071747]">Neighborhoods</a>
+        <a href="checklist.html" class="hover:text-[#071747]">Checklist</a>
+        <a href="move-setup.html" class="hover:text-[#071747]">Move Setup</a>
+      </div>
+    </footer>
+    
+  </body>
+</html>

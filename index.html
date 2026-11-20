@@ -1,730 +1,179 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Landa — UK Relocation Assistant</title>
-  <!-- Google Font -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-  
-  <style>
-    :root {
-      /* Ultra-Modern Dark Theme Palette */
-      --bg-page: #0b0f19;
-      --card-bg: #131b2e;
-      --card-bg-light: #1e2942;
-      --border-color: #263554;
-      --border-focus: #3b82f6;
-      
-      --primary: #3b82f6;
-      --primary-hover: #60a5fa;
-      --primary-soft: rgba(59, 130, 246, 0.15);
-      
-      --accent: #f97316;
-      --accent-soft: rgba(249, 115, 22, 0.12);
-      --accent-border: #f97316;
-      
-      --text-main: #f3f4f6;
-      --text-muted: #9ca3af;
-      --text-highlight: #60a5fa;
-      --success: #10b981;
-      
-      --radius-sm: 8px;
-      --radius-md: 14px;
-      --radius-lg: 24px;
-      --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
-      --shadow-md: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
-      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-
-    body {
-      background: var(--bg-page);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 40px 16px;
-      background-image: 
-        radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(249, 115, 22, 0.05) 0%, transparent 50%);
-      background-attachment: fixed;
-    }
-
-    .app-container {
-      width: 100%;
-      max-width: 540px;
-      background: var(--card-bg);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-md);
-      overflow: hidden;
-      border: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Header */
-    .header {
-      background: linear-gradient(180deg, rgba(30, 41, 66, 0.6) 0%, rgba(19, 27, 46, 0) 100%);
-      border-bottom: 1px solid rgba(38, 53, 84, 0.4);
-      padding: 36px 28px 28px;
-      text-align: center;
-      position: relative;
-    }
-
-    .header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .brand-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(59, 130, 246, 0.12);
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      backdrop-filter: blur(8px);
-      padding: 6px 16px;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      color: #93c5fd;
-    }
-
-    .brand-badge svg {
-      width: 16px;
-      height: 16px;
-      fill: none;
-      stroke: currentColor;
-    }
-
-    /* Elegant Language Dropdown */
-    .lang-selector-wrapper {
-      position: relative;
-    }
-
-    .lang-select {
-      background: rgba(30, 41, 66, 0.8);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 6px 12px;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-      outline: none;
-      transition: var(--transition);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .lang-select:focus {
-      border-color: var(--border-focus);
-      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-    }
-
-    .header h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      margin-bottom: 8px;
-      background: linear-gradient(to right, #ffffff, #93c5fd);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .header p {
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      max-width: 380px;
-      margin: 0 auto;
-      line-height: 1.5;
-    }
-
-    /* Form Container */
-    .content {
-      padding: 32px 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 28px;
-    }
-
-    /* Progressive Reveal steps */
-    .step-section {
-      opacity: 0;
-      max-height: 0;
-      overflow: hidden;
-      transform: translateY(20px);
-      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
-                  transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
-                  max-height 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-      pointer-events: none;
-    }
-
-    .step-section.active {
-      opacity: 1;
-      max-height: 1200px;
-      overflow: visible;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-
-    .step-label {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: var(--text-main);
-      margin-bottom: 16px;
-    }
-
-    .step-number {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: var(--primary-soft);
-      color: #60a5fa;
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.85rem;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .field-wrap {
-      width: 100%;
-      position: relative;
-    }
-
-    select, input[type="text"], input[type="number"] {
-      width: 100%;
-      padding: 14px 16px;
-      font-size: 0.95rem;
-      border: 1.5px solid var(--border-color);
-      border-radius: var(--radius-sm);
-      background-color: rgba(11, 15, 25, 0.6);
-      color: var(--text-main);
-      outline: none;
-      transition: var(--transition);
-    }
-
-    select:focus, input:focus {
-      border-color: var(--border-focus);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
-      background-color: rgba(11, 15, 25, 0.95);
-    }
-
-    /* Custom Autocomplete Suggestions UI */
-    .autocomplete-wrapper {
-      position: relative;
-      width: 100%;
-    }
-
-    .suggestions-list {
-      position: absolute;
-      top: calc(100% + 6px);
-      left: 0;
-      right: 0;
-      background: var(--card-bg-light);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
-      max-height: 220px;
-      overflow-y: auto;
-      z-index: 10;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-      display: none;
-    }
-
-    .suggestions-list.visible {
-      display: block;
-    }
-
-    .suggestion-item {
-      padding: 12px 16px;
-      cursor: pointer;
-      font-size: 0.95rem;
-      color: var(--text-main);
-      transition: var(--transition);
-      border-bottom: 1px solid rgba(38, 53, 84, 0.3);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .suggestion-item:last-child {
-      border-bottom: none;
-    }
-
-    .suggestion-item:hover, .suggestion-item.highlighted {
-      background-color: rgba(59, 130, 246, 0.15);
-      color: #60a5fa;
-    }
-
-    /* Purpose Option Cards */
-    .purpose-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .purpose-card {
-      border: 1.5px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 20px 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      background: var(--card-bg-light);
-      transition: var(--transition);
-      user-select: none;
-    }
-
-    .purpose-card:hover {
-      border-color: rgba(59, 130, 246, 0.5);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .purpose-card.selected {
-      border-color: var(--accent);
-      background-color: var(--accent-soft);
-      box-shadow: 0 4px 20px rgba(249, 115, 22, 0.15);
-    }
-
-    .purpose-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      background: rgba(11, 15, 25, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-muted);
-      border: 1px solid var(--border-color);
-      transition: var(--transition);
-    }
-
-    .purpose-card.selected .purpose-icon {
-      background: rgba(249, 115, 22, 0.2);
-      color: var(--accent);
-      border-color: rgba(249, 115, 22, 0.4);
-    }
-
-    .purpose-label {
-      font-weight: 600;
-      font-size: 0.95rem;
-      letter-spacing: 0.3px;
-    }
-
-    /* Companions Section */
-    .companion-creator {
-      background: var(--card-bg-light);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .creator-row {
-      display: grid;
-      grid-template-columns: 1.5fr 1fr auto;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .btn-secondary {
-      background: var(--primary-soft);
-      color: #60a5fa;
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      border-radius: var(--radius-sm);
-      padding: 13px 16px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: var(--transition);
-      white-space: nowrap;
-    }
-
-    .btn-secondary:hover {
-      background: rgba(59, 130, 246, 0.25);
-    }
-
-    .companion-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 6px;
-    }
-
-    .companion-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      background: rgba(11, 15, 25, 0.4);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
-      animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .companion-meta {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .badge-role {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    .badge-age {
-      font-size: 0.8rem;
-      color: var(--primary-hover);
-      background: var(--primary-soft);
-      padding: 3px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(59, 130, 246, 0.2);
-    }
-
-    .btn-remove {
-      background: transparent;
-      border: none;
-      color: #6b7280;
-      cursor: pointer;
-      padding: 6px;
-      border-radius: 6px;
-      transition: var(--transition);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .btn-remove:hover {
-      color: #ef4444;
-      background: rgba(239, 68, 68, 0.15);
-    }
-
-    /* Submit Section */
-    .submit-wrap {
-      margin-top: 12px;
-    }
-
-    .btn-primary {
-      width: 100%;
-      background: var(--primary);
-      color: #ffffff;
-      border: none;
-      padding: 16px 24px;
-      border-radius: var(--radius-md);
-      font-size: 1.05rem;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
-      transition: var(--transition);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .btn-primary:hover {
-      background: #2563eb;
-      transform: translateY(-1px);
-      box-shadow: 0 12px 24px rgba(59, 130, 246, 0.35);
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    /* Modal dialog */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(3, 7, 18, 0.8);
-      backdrop-filter: blur(8px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      z-index: 1000;
-    }
-
-    .modal-overlay.open {
-      display: flex;
-    }
-
-    .modal {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      padding: 32px 28px;
-      max-width: 440px;
-      width: 100%;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
-      animation: modalPop 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    @keyframes modalPop {
-      0% { transform: scale(0.95); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    .modal-header {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .modal-icon {
-      width: 56px;
-      height: 56px;
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--success);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 4px;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-
-    .summary-card {
-      background: var(--card-bg-light);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
-      padding: 16px;
-      margin-bottom: 24px;
-      font-size: 0.9rem;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
-      border-bottom: 1px dashed var(--border-color);
-      padding-bottom: 8px;
-    }
-
-    .summary-row:last-child {
-      border-bottom: none;
-      padding-bottom: 0;
-    }
-
-    .summary-title {
-      color: var(--text-muted);
-    }
-
-    .summary-value {
-      font-weight: 600;
-      color: var(--text-main);
-      text-align: right;
-    }
-
-    /* Translation Overlay Loader */
-    .translation-loader {
-      display: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(11, 15, 25, 0.85);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 12px;
-      color: var(--primary-hover);
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
-
-    .translation-loader.active {
-      display: flex;
-    }
-
-    .spinner {
-      width: 32px;
-      height: 32px;
-      border: 3px solid rgba(59, 130, 246, 0.2);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      100% { transform: rotate(360deg); }
-    }
-  </style>
-</head>
-<body>
-
-  <main class="app-container" style="position: relative;">
-    <!-- Translation Loading Overlay -->
-    <div class="translation-loader" id="trans-loader">
-      <div class="spinner"></div>
-      <span class="trn" data-key="translating">Translating page...</span>
-    </div>
-
-    <!-- Header / Welcome to Landa -->
-    <header class="header">
-      <div class="header-top">
-        <div class="brand-badge">
-          <svg viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" fill="none" stroke="currentColor" stroke-width="1.8"/>
-            <path d="M2 12h20" stroke="currentColor" stroke-width="1.8"/>
-          </svg>
-          <span class="trn" data-key="brand_title">UK Relocation Navigator</span>
-        </div>
-
-        <!-- Language Selector dropdown -->
-        <div class="lang-selector-wrapper">
-          <select class="lang-select" id="lang-select">
-            <option value="en">🇬🇧 EN</option>
-            <option value="es">🇪🇸 ES</option>
-            <option value="fr">🇫🇷 FR</option>
-            <option value="de">🇩🇪 DE</option>
-            <option value="it">🇮🇹 IT</option>
-            <option value="pt">🇵🇹 PT</option>
-          </select>
-        </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Overview — Landa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #fdf8f6 0%, #fce7f3 34%, #f3e8ff 68%, #ecfeff 100%);
+    background-attachment: fixed;
+    color: #071747;
+  }
+  .landa-glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 18px 45px -18px rgba(99, 14, 212, 0.12), 0 6px 20px -8px rgba(7, 23, 71, 0.06);
+  }
+  .landa-glass-subtle {
+    background: rgba(255, 255, 255, 0.68);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(204, 195, 216, 0.45);
+  }
+  .landa-gradient-btn {
+    background: linear-gradient(135deg, #7c3aed 0%, #db2777 100%);
+    box-shadow: 0 12px 26px -10px rgba(124, 58, 237, 0.55);
+  }
+  .landa-gradient-fill {
+    background: linear-gradient(90deg, #7c3aed 0%, #db2777 100%);
+  }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+</style>
+  </head>
+  <body class="antialiased">
+    <header class="sticky top-0 z-30 landa-glass border-b border-white/80">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-8">
+        <a href="index.html" class="text-xl font-bold tracking-tight text-[#071747] whitespace-nowrap shrink-0">Landa</a>
+        <nav class="hidden md:flex items-center gap-7">
+          <a href="index.html" class="whitespace-nowrap shrink-0 pb-1 text-sm font-medium transition-colors text-[#630ed4] border-b-2 border-[#7c3aed]">Overview</a>
+          <a href="neighborhoods.html" class="whitespace-nowrap shrink-0 pb-1 text-sm font-medium transition-colors text-[#4a4455] hover:text-[#071747]">Neighborhoods</a>
+          <a href="checklist.html" class="whitespace-nowrap shrink-0 pb-1 text-sm font-medium transition-colors text-[#4a4455] hover:text-[#071747]">Checklist</a>
+          <a href="move-setup.html" class="whitespace-nowrap shrink-0 pb-1 text-sm font-medium transition-colors text-[#4a4455] hover:text-[#071747]">Move Setup</a>
+        </nav>
+        <a href="checklist.html" class="landa-gradient-btn px-5 py-2 rounded-full text-xs sm:text-sm font-semibold text-white whitespace-nowrap shrink-0">
+          Open Checklist
+        </a>
       </div>
-      
-      <h1 class="trn" data-key="welcome_title">Welcome to Landa</h1>
-      <p class="trn" data-key="welcome_subtitle">Let's personalize your moving journey step by step</p>
     </header>
 
-    <div class="content">
-      <!-- 1. Question: Origin Country with Autocomplete -->
-      <section class="step-section active" id="step-origin">
-        <div class="step-label">
-          <span class="step-number">1</span>
-          <span class="trn" data-key="q1">Where are you moving from?</span>
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      
+    <div class="space-y-8">
+      <section class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div class="space-y-2 max-w-2xl">
+          <p class="text-sm font-medium text-[#630ed4]">Relocation Journey · Lisbon, Portugal</p>
+          <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-[#071747] leading-tight">
+            Your move to Lisbon is calmly on track
+          </h1>
+          <p class="text-sm text-[#4a4455] tabular-nums">42 days until arrival · Target Jan 1, 2027 · 3 of 9 tasks completed</p>
         </div>
+        <div class="flex items-center gap-3 shrink-0">
+          <a href="move-setup.html" class="landa-glass-subtle px-5 py-2.5 rounded-full text-sm font-medium text-[#172554] hover:bg-white">Edit Move Plan</a>
+          <a href="checklist.html" class="landa-gradient-btn px-6 py-2.5 rounded-full text-sm font-semibold text-white">Open Checklist</a>
+        </div>
+      </section>
 
-        <div class="field-wrap">
-          <div class="autocomplete-wrapper">
-            <input 
-              type="text" 
-              id="input-origin" 
-              class="trn-ph"
-              data-key-ph="q1_placeholder"
-              placeholder="Search origin country (e.g., 'IND' for India)" 
-              autocomplete="off"
-            />
-            <div class="suggestions-list" id="origin-suggestions-list"></div>
+      <section class="landa-glass rounded-[28px] p-6 sm:p-8 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-semibold text-[#071747]">Journey Milestones</h2>
+            <p class="text-sm text-[#4a4455]">Track each calm phase from destination selection to settling in.</p>
+          </div>
+          <div class="text-sm font-semibold text-[#630ed4] tabular-nums">50% Overall Readiness</div>
+        </div>
+        <div class="h-2.5 w-full rounded-full bg-[#ebedff] overflow-hidden">
+          <div class="landa-gradient-fill h-full rounded-full" style="width: 52%"></div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div class="rounded-[22px] p-4 bg-white/75 border border-[#059669]/25">
+            <div class="text-xs font-medium text-[#4a4455] mb-2">01 · Done</div>
+            <div class="text-sm font-semibold text-[#071747]">Destination Selected</div>
+            <div class="text-xs text-[#4a4455] mt-1">Lisbon shortlisted</div>
+          </div>
+          <div class="rounded-[22px] p-4 bg-white/75 border border-[#059669]/25">
+            <div class="text-xs font-medium text-[#4a4455] mb-2">02 · Done</div>
+            <div class="text-sm font-semibold text-[#071747]">Visas &amp; Residency</div>
+            <div class="text-xs text-[#4a4455] mt-1">D8 permit filed</div>
+          </div>
+          <div class="rounded-[22px] p-4 bg-white border border-[#7c3aed]/40 shadow-sm">
+            <div class="text-xs font-medium text-[#630ed4] mb-2">03 · Active</div>
+            <div class="text-sm font-semibold text-[#071747]">Home Search</div>
+            <div class="text-xs text-[#4a4455] mt-1">3 viewings booked</div>
+          </div>
+          <div class="rounded-[22px] p-4 bg-white/45 border border-[#ccc3d8]/45">
+            <div class="text-xs font-medium text-[#4a4455] mb-2">04 · Next</div>
+            <div class="text-sm font-semibold text-[#071747]">Utilities &amp; Banking</div>
+            <div class="text-xs text-[#4a4455] mt-1">NIF &amp; fiber queued</div>
+          </div>
+          <div class="rounded-[22px] p-4 bg-white/45 border border-[#ccc3d8]/45">
+            <div class="text-xs font-medium text-[#4a4455] mb-2">05 · Upcoming</div>
+            <div class="text-sm font-semibold text-[#071747]">Settling In</div>
+            <div class="text-xs text-[#4a4455] mt-1">Neighborhood orientation</div>
           </div>
         </div>
       </section>
 
-      <!-- 2. Question: Destination UK City with Autocomplete -->
-      <section class="step-section" id="step-destination">
-        <div class="step-label">
-          <span class="step-number">2</span>
-          <span class="trn" data-key="q2">Which city in the UK are you moving to?</span>
-        </div>
-        <div class="field-wrap">
-          <div class="autocomplete-wrapper">
-            <input 
-              type="text" 
-              id="input-destination" 
-              class="trn-ph"
-              data-key-ph="q2_placeholder"
-              placeholder="Type to search (e.g., 'lon' for London)" 
-              autocomplete="off"
-            />
-            <div class="suggestions-list" id="destination-suggestions-list"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 3. Question: Purpose (Work or Education) -->
-      <section class="step-section" id="step-purpose">
-        <div class="step-label">
-          <span class="step-number">3</span>
-          <span class="trn" data-key="q3">Is this move for work or education?</span>
-        </div>
-        <div class="purpose-grid">
-          <!-- Work Card -->
-          <div class="purpose-card" data-purpose="Work" id="card-work">
-            <div class="purpose-icon">
-              <!-- Briefcase SVG -->
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-              </svg>
+      <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        <div class="lg:col-span-8 landa-glass rounded-[30px] overflow-hidden flex flex-col">
+          <div class="relative h-72 w-full overflow-hidden bg-gradient-to-br from-[#f3e8ff] via-[#fce7f3] to-[#ecfeff]">
+            <img src="https://ais-dev-rbkplslzxmbcfstz2ozfoh-562055990920.europe-west1.run.app/src/assets/images/hero_lisbon_neighborhood_1795172319930.jpg" alt="Príncipe Real, Lisbon" referrerpolicy="no-referrer" class="w-full h-full object-cover" />
+            <div class="absolute inset-0 bg-gradient-to-t from-[#071747]/85 via-[#071747]/30 to-transparent"></div>
+            <div class="absolute bottom-0 inset-x-0 p-6 sm:p-8 text-white">
+              <div class="text-xs sm:text-sm text-white/85 mb-1">Primary Neighborhood · 96 Walk Score · 12 min transit</div>
+              <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Príncipe Real, Lisbon</h2>
             </div>
-            <span class="purpose-label trn" data-key="work">Work</span>
           </div>
+          <div class="p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 flex-1">
+            <p class="text-sm sm:text-base text-[#172554]/85 leading-relaxed max-w-xl">
+              Tree-lined squares, pastel tiled facades, independent bakeries, and calm morning terraces five minutes from the botanical garden.
+            </p>
+            <a href="neighborhoods.html" class="landa-glass-subtle px-5 py-3 rounded-full text-sm font-semibold text-[#630ed4] hover:bg-white whitespace-nowrap shrink-0">Compare Areas</a>
+          </div>
+        </div>
 
-          <!-- Education Card -->
-          <div class="purpose-card" data-purpose="Education" id="card-education">
-            <div class="purpose-icon">
-              <!-- Graduation Cap SVG -->
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                <path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/>
-              </svg>
+        <div class="lg:col-span-4 landa-glass rounded-[30px] p-6 sm:p-8 flex flex-col justify-between">
+          <div>
+            <h2 class="text-lg font-semibold text-[#071747]">Move Summary</h2>
+            <p class="text-sm text-[#4a4455] mt-1">Live snapshot of your relocation readiness.</p>
+            <div class="mt-6 divide-y divide-[#071747]/10">
+              <div class="py-4 flex items-baseline justify-between gap-4">
+                <div>
+                  <div class="text-sm font-medium text-[#172554]">Checklist Progress</div>
+                  <div class="text-xs text-[#4a4455]">Essential &amp; admin steps</div>
+                </div>
+                <div class="text-xl font-bold text-[#071747] tabular-nums">3/9</div>
+              </div>
+              <div class="py-4 flex items-baseline justify-between gap-4">
+                <div>
+                  <div class="text-sm font-medium text-[#172554]">Monthly Rent Target</div>
+                  <div class="text-xs text-[#4a4455]">Avg Príncipe Real: €1,650</div>
+                </div>
+                <div class="text-xl font-bold text-[#071747] tabular-nums">€2,200</div>
+              </div>
+              <div class="py-4 flex items-baseline justify-between gap-4">
+                <div>
+                  <div class="text-sm font-medium text-[#172554]">Shortlisted Areas</div>
+                  <div class="text-xs text-[#4a4455]">Ready for viewing schedule</div>
+                </div>
+                <div class="text-xl font-bold text-[#071747] tabular-nums">3</div>
+              </div>
             </div>
-            <span class="purpose-label trn" data-key="education">Education</span>
           </div>
+          <a href="neighborhoods.html" class="mt-6 w-full landa-glass-subtle py-3 px-5 rounded-full text-sm font-semibold text-[#172554] hover:bg-white text-center block">View Shortlisted Areas</a>
         </div>
       </section>
+    </div>
+  
+    </main>
 
-      <!-- 4. Question: Companions -->
-      <section class="step-section" id="step-companions">
-        <div class="step-label">
-          <span class="step-number">4</span>
-          <span class="trn" data-key="q4">Who are you moving with?</span>
-        </div>
-
-        <div class="companion-creator">
-          <div class="creator-row">
-            <select id="companion-role">
-              <option value="Spouse / Partner" class="trn" data-key="spouse">Spouse / Partner</option>
-              <option value="Child" class="trn" data-key="child">Child</option>
-              <option value="Parent" class="trn" data-key="parent">Parent</option>
-              <option value="Other De
+    <footer class="max-w-6xl mx-auto px-4 sm:px-6 py-8 text-xs text-[#4a4455] flex flex-wrap items-center justify-between gap-4 border-t border-[#071747]/8">
+      <span>Landa · Relocation Planner</span>
+      <div class="flex items-center gap-4">
+        <a href="index.html" class="hover:text-[#071747]">Overview</a>
+        <a href="neighborhoods.html" class="hover:text-[#071747]">Neighborhoods</a>
+        <a href="checklist.html" class="hover:text-[#071747]">Checklist</a>
+        <a href="move-setup.html" class="hover:text-[#071747]">Move Setup</a>
+      </div>
+    </footer>
+    
+  </body>
+</html>
